@@ -23,12 +23,21 @@ import Task
 
 {-| -}
 type alias Model =
-    { loggedIn : Bool
+    { homeDetails : HomeDetails
+    , loggedIn : Bool
     , page : Page
     , quote : Quote
     , productCatalog : List Product
     , selectedProduct : Maybe Product
     --, featureCatalog : List Feature
+    --, TODO: Story for i18n (https://en.wikipedia.org/wiki/Internationalization_and_localization)
+    }
+
+type alias HomeDetails =
+    { title : String
+    , summary : String
+    , description : String
+    , navigateTo : Page
     }
 
 {-| Represents the currently selected page of the app -}
@@ -37,7 +46,7 @@ type Page
     -- | Home -- Landing page for description of the tool
     | ProductCatalog -- Lists the available products
     | ProductFeatures
-    | FeatureCatalog
+    | FeatureCatalog -- Lists the features for a given product
     | QuoteSummary -- Gives the current Quote
     -- | QuoteSubmitted -- Gives confirmation that quote was submitted
 
@@ -85,7 +94,7 @@ type alias Quote =
     { products : List Product
     , client : String
     --, date : Date
-    , preparer : String
+    , preparer : Maybe String
     , approved : Bool
     , id : Maybe Int
     }
@@ -93,7 +102,13 @@ type alias Quote =
 {-| -}
 initialModel : Model
 initialModel =
-    { loggedIn = False
+    { homeDetails =
+        { title = "Test home title"
+        , summary = "Test home summary"
+        , description = "Test home description, long windedness.\n blah blah blah\n more blah blah."
+        , navigateTo = ProductCatalog
+        }
+    , loggedIn = False
     , page = Login
     , productCatalog = []
     , selectedProduct = Nothing
@@ -101,7 +116,7 @@ initialModel =
         { products = []
         , client = "Test Client"
         --, date = ?
-        , preparer = "Tom Kidd"
+        , preparer = Nothing
         , approved = False
         , id = Nothing
         }
