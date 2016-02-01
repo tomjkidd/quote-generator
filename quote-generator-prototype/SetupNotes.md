@@ -25,18 +25,24 @@ These libraries provide functionality that the server will utilize and were adde
 
 To build and run Elm, it can be installed through npm. Note, this means node.js is a prerequisite.
 
+## Get Elm Dependencies
+        elm-package install elm-lang/core
+        elm-package install evancz/elm-effects
+        elm-package install evancz/elm-html
+        elm-package install evancz/elm-http
+        elm-package install evancz/start-app
+
 ## Build Elm code
 
         elm-make --warn ./src/Elm/App.elm --output ./resources/public/src/App.js
 
-The client will use Elm to create the UI, and this command creates the JavaScript code that is necessary to run the application in the browser.
+The client will use Elm to create the UI, and this command creates the JavaScript code that is necessary to run the application in the browser. For now this is the only file, and should complete define the application.
+
+NOTE: *App.js* is *NOT* is git because it gets generated through this Elm build step, and is subject to change.
 
 ### Might be useful
 [blog](http://www.gizra.com/content/thinking-choosing-elm/) and [source](https://github.com/Gizra/elm-hedley)
 
 ### TODO:
 * Get Clojure Dependencies
-* Get Elm dependencies
-* Create app.html
 * Get JS dependencies (maybe with bower?)
-* Create JS/Elm boilerplate code

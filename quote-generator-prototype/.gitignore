@@ -1,3 +1,6 @@
+#################
+## Clojure
+#################
 /target
 /lib
 /classes
@@ -8,3 +11,12 @@ pom.xml.asc
 *.class
 /.lein-*
 /.nrepl-port
+
+
+#################
+## Elm
+#################
+elm-stuff/
+elm.js
+tests/test.js
+/resources/public/src/App.js
