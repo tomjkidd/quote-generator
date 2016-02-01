@@ -286,13 +286,19 @@ googleSignInView model =
                 [ ("backgroundColor", "lightblue")
                 , ("display", "flex")
                 , ("flex-direction", "row")
+
                 ]
             ]
             [ img [ src "images/login-logo.png", width 100, height 100 ] []
-            , div [ class "login-title"] [ text "Analytic Services Sales Menu" ]
+            , div
+                [ style [ ("align-self", "center"), ("justify-content", "center"), ("padding", "0 0 0 15px") ]]
+                [ div [ class "login-title"] [ text "Login title goes here" ]
+                , div [ class "login-subtitle"] [ text "Login subtitle, if necessary" ]
+                ]
             ]
         , div
             [ class "g-signin2"
+            , style [ ("width", "120"), ("margin", "0 auto"), ("padding", "10px 0 0 0") ]
             , attribute "data-onsuccess" "onSignIn"
             , attribute "data-theme" "dark"
             ] []
