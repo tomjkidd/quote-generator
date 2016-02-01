@@ -43,6 +43,12 @@ NOTE: *App.js* is *NOT* is git because it gets generated through this Elm build 
 ### Might be useful
 [blog](http://www.gizra.com/content/thinking-choosing-elm/) and [source](https://github.com/Gizra/elm-hedley)
 
+## Run Web Server
+
+        lein ring server
+
+This command will set up a process that manages the server.
+
 ### TODO:
 * Get Clojure Dependencies
 * Get JS dependencies (maybe with bower?)
