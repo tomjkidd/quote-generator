@@ -1,8 +1,8 @@
 {
     "version": "1.0.0",
-    "summary": "Quote-",
-    "repository": "https://github.com/user/project.git",
-    "license": "BSD3",
+    "summary": "Provides a simple way to create a Quote, using the shopping cart as a metaphor.",
+    "repository": "https://github.com/tomjkidd/quote-generator.git",
+    "license": "Eclipse Public License - v 1.0",
     "source-directories": [
         "."
     ],
