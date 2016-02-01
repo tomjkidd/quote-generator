@@ -1,0 +1,4 @@
+#################
+## Files that should not be checked in
+#################
+/git-ignore-folder
