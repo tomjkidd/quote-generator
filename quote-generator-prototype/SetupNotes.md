@@ -36,7 +36,7 @@ To build and run Elm, it can be installed through npm. Note, this means node.js 
 
         elm-make --warn ./src/Elm/App.elm --output ./resources/public/src/App.js
 
-The client will use Elm to create the UI, and this command creates the JavaScript code that is necessary to run the application in the browser. For now this is the only file, and should complete define the application.
+The client will use Elm to create the UI, and this command creates the JavaScript code that is necessary to run the application in the browser. For now this is the only file, and should completely define the application.
 
 NOTE: *App.js* is *NOT* is git because it gets generated through this Elm build step, and is subject to change.
 
