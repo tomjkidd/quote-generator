@@ -251,6 +251,11 @@ update action model =
 {-| -}
 view : Address Action -> Model -> Html
 view address model =
+  let btnClass =
+    case model.loggedIn of
+        True -> "btn btn-default btn-xs"
+        False -> ""
+  in
     div
         []
         [ text (toString model.page)
@@ -260,8 +265,11 @@ view address model =
             -- http://stackoverflow.com/questions/33420659/how-to-create-html-data-attributes-in-elm
             , googleSignInView model
 
-            , button [ onClick address RequestAuth, show model.loggedIn ] [ text "Request Auth" ]
-
+            , button
+                [ class btnClass, onClick address RequestAuth, show model.loggedIn ]
+                [ i [class "fa fa-cog", style [ ("padding-right", "5px") ]] []
+                , text "Request Auth"
+                ]
             , productCatalogView address model
             , selectedProductView address model
             ]
@@ -292,8 +300,8 @@ googleSignInView model =
             [ img [ src "images/login-logo.png", width 100, height 100 ] []
             , div
                 [ style [ ("align-self", "center"), ("justify-content", "center"), ("padding", "0 0 0 15px") ]]
-                [ div [ class "login-title"] [ text "Login title goes here" ]
-                , div [ class "login-subtitle"] [ text "Login subtitle, if necessary" ]
+                [ div [ class "login-title h2"] [ text "Login title goes here" ]
+                , div [ class "login-subtitle h3"] [ text "Login subtitle, if necessary" ]
                 ]
             ]
         , div
