@@ -19,7 +19,50 @@ import StartApp
 --import Date exposing (Date)
 import Effects exposing (Effects, Never)
 import Task
+import Dict
 --import Debug
+
+type SupportedLanguage
+    = English
+
+currentLanguage : SupportedLanguage
+currentLanguage = English
+
+englishI18nTranslations : Dict.Dict String String
+englishI18nTranslations =
+    let ts = toString
+    in
+        Dict.fromList
+            [(ts LoginTitle, "Login title goes here")
+            ,(ts LoginSubtitle, "Login subtitle, if necessary")
+            ,(ts HomeTitle, "Test home title")
+            ,(ts HomeSummary, "Test home summary")
+            ,(ts HomeDescription, "Test home description, long windedness.\n blah blah blah\n more blah blah.")
+            ,(ts NavigateToProductCatalog, "Nav to Products")
+            ,(ts NavigateToQuoteSummary, "Quote Summary")
+            ,(ts LogoutLabel, "Log Out")
+            ]
+
+type I18nMessage
+    = LoginTitle
+    | LoginSubtitle
+    | HomeTitle
+    | HomeSummary
+    | HomeDescription
+    | NavigateToProductCatalog
+    | NavigateToQuoteSummary
+    | LogoutLabel
+
+i18nLookup : I18nMessage -> String
+i18nLookup key =
+    let i18nLookupDict =
+            case currentLanguage of
+                English -> englishI18nTranslations
+        entry = Dict.get (toString key) i18nLookupDict
+    in
+        case entry of
+            Nothing -> toString key
+            Just e -> e
 
 {-| -}
 type alias Model =
@@ -103,9 +146,9 @@ type alias Quote =
 initialModel : Model
 initialModel =
     { homeDetails =
-        { title = "Test home title"
-        , summary = "Test home summary"
-        , description = "Test home description, long windedness.\n blah blah blah\n more blah blah."
+        { title = i18nLookup HomeTitle
+        , summary = i18nLookup HomeSummary
+        , description = i18nLookup HomeDescription
         , navigateTo = ProductCatalog
         }
     , loggedIn = False
@@ -290,7 +333,8 @@ googleSignInView model =
     div
         [ class "login-view", hidden model.loggedIn, style [ ("width", "500px"),  ("margin", "0 auto")] ]
         [ div
-            [ style
+            [ class "login-background"
+            , style
                 [ ("backgroundColor", "lightblue")
                 , ("display", "flex")
                 , ("flex-direction", "row")
@@ -300,8 +344,8 @@ googleSignInView model =
             [ img [ src "images/login-logo.png", width 100, height 100 ] []
             , div
                 [ style [ ("align-self", "center"), ("justify-content", "center"), ("padding", "0 0 0 15px") ]]
-                [ div [ class "login-title h2"] [ text "Login title goes here" ]
-                , div [ class "login-subtitle h3"] [ text "Login subtitle, if necessary" ]
+                [ div [ class "login-title h2"] [ i18nLookup LoginTitle |> text ]
+                , div [ class "login-subtitle h3"] [  i18nLookup LoginSubtitle |> text ]
                 ]
             ]
         , div
@@ -352,9 +396,9 @@ headerView : Address Action -> Model -> Html
 headerView address model =
     div [ show (model.loggedIn) ]
         [ img [ src "images/header-logo.png", class "header-logo", height 50, width 300 ] []
-        , button [ onClick address (NavigateToPage ProductCatalog), show model.loggedIn ] [ text "Nav to Products" ]
-        , button [ onClick address (NavigateToPage QuoteSummary), show model.loggedIn ] [ text "Quote Summary" ]
-        , button [ onClick address RequestLogOut, show model.loggedIn ] [ text "Log Out" ]
+        , button [ onClick address (NavigateToPage ProductCatalog), show model.loggedIn ] [ text (i18nLookup NavigateToProductCatalog) ]
+        , button [ onClick address (NavigateToPage QuoteSummary), show model.loggedIn ] [ text (i18nLookup NavigateToQuoteSummary) ]
+        , button [ onClick address RequestLogOut, show model.loggedIn ] [ text (i18nLookup LogoutLabel) ]
         ]
 
 {-| -}
