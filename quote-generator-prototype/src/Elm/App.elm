@@ -122,6 +122,8 @@ type alias Feature =
     , title : String
     , quantity: Int
     , id : Maybe Int
+    , baseFeature : Bool -- True for base part of the report, false for addtional. A feature can show up as a base and additional feature.
+    , featureType : Maybe String
     }
 
 {-| Represents a Product offered by a provider. -}
@@ -177,7 +179,7 @@ sampleProduct =
 sampleProducts : List Product
 sampleProducts =
     [
-        { features = []
+        { features = sampleFeatures
         , description = "This is a fake product 1"
         , title = "This is fake product's title 1"
         , id = Just 1
@@ -202,8 +204,10 @@ sampleFeatures =
         { description = "Feature 1 description"
         , cost = 100
         , title = "Feature 1 title"
-        , quantity = 1
+        , quantity = 3
         , id = Just 1
+        , baseFeature = True
+        , featureType = Nothing
         },
 
         { description = "Feature 2 description"
@@ -211,6 +215,8 @@ sampleFeatures =
         , title = "Feature 2 title"
         , quantity = 1
         , id = Just 2
+        , baseFeature = False
+        , featureType = Nothing
         }
     ]
 
@@ -258,10 +264,10 @@ update action model =
                 (NavigateToPage ProductFeatures)
                     |> Task.succeed
                     |> Effects.task
-                requestEffect =
-                    case p.id of
+                requestEffect = Effects.none
+                    {-case p.id of
                         Nothing -> Effects.none
-                        Just pid -> requestProductFeatures pid
+                        Just pid -> requestProductFeatures pid-}
             in
                 ({ model | selectedProduct = Just p }, Effects.batch [navEffect, requestEffect ])
 
@@ -359,10 +365,23 @@ productCatalogView address model =
             [ show (model.page == ProductCatalog) ]
             products
 
+calculateBaseCost : Product -> Int
+calculateBaseCost product =
+    let baseFeatures = List.filter (\p -> p.baseFeature) product.features
+        baseCost = List.foldl (\cur acc -> acc + (cur.cost * cur.quantity)) 0 baseFeatures
+    in
+        baseCost
+
 productView : Address Action -> Product -> Html
 productView address product =
-    div [ onClick address (SelectProduct product) ] [ text product.title ]
-
+    let baseCost = calculateBaseCost product
+    in
+        div
+            [ onClick address (SelectProduct product) ]
+            [ div [] [text product.title]
+            , div [] [text product.description]
+            , div [] [text (toString baseCost)]
+            ]
 
 selectedProductView : Address Action -> Model -> Html
 selectedProductView address model =
