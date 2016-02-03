@@ -73,10 +73,19 @@ crimsonTheme : Dict.Dict String String
 crimsonTheme =
     let ts = toString
     in Dict.fromList
-        [(ts ProductViewColor, "#A60010")]
+        [ (ts LoginViewColor, "#262626")
+        , (ts LoginViewTextColor, "white")
+        , (ts ProductViewColor, "#A60010")
+        , (ts FeatureViewColor, "#262626")
+        , (ts FeatureViewTextColor, "white")
+        ]
 
 type ThemeStyle
-    = ProductViewColor
+    = LoginViewColor
+    | LoginViewTextColor
+    | ProductViewColor
+    | FeatureViewColor
+    | FeatureViewTextColor
 
 themeLookup : ThemeStyle -> String
 themeLookup key =
@@ -157,6 +166,9 @@ type alias Product =
     , description : String
     , title : String
     , id : Maybe Int
+    , note : Maybe String -- Available when creating a quote
+    , linkToSample : Maybe String -- May be available to demonstrate a sample
+    , quantity : Maybe Int -- Can have a value when adding to a quote
     }
 
 {-| Represents a Quote for a set of Products, used by a client to consider cost of services. -}
@@ -199,6 +211,9 @@ sampleProduct =
     , description = "This is a fake product"
     , title = "This is fake product's title"
     , id = Nothing
+    , note = Nothing
+    , linkToSample = Nothing
+    , quantity = Nothing
     }
 
 sampleProducts : List Product
@@ -208,18 +223,27 @@ sampleProducts =
         , description = "This is a fake product 1 description."
         , title = "This is fake product's title 1"
         , id = Just 1
+        , note = Nothing
+        , linkToSample = Nothing
+        , quantity = Nothing
         },
 
         { features = []
         , description = "This is a fake product 2 description"
         , title = "This is fake product's title 2"
         , id = Just 2
+        , note = Nothing
+        , linkToSample = Nothing
+        , quantity = Nothing
         },
 
         { features = []
         , description = "This is a fake product 3 description"
         , title = "This is fake product's title 3"
         , id = Just 3
+        , note = Nothing
+        , linkToSample = Nothing
+        , quantity = Nothing
         }
     ]
 
@@ -356,7 +380,8 @@ loginView address model =
         [ div
             [ class "login-background"
             , style
-                [ ("backgroundColor", "lightblue")
+                [ ("backgroundColor", themeLookup LoginViewColor)
+                , ("color", themeLookup LoginViewTextColor)
                 , ("display", "flex")
                 , ("flex-direction", "row")
 
@@ -397,6 +422,14 @@ calculateBaseCost product =
     in
         baseCost
 
+calculateTotalCost : Product -> Int
+calculateTotalCost product =
+    let baseCost = calculateBaseCost product
+        additionalFeatures = List.filter (\p -> not p.baseFeature) product.features
+        additionalCost = List.foldl (\cur acc -> acc + (cur.cost * cur.quantity)) 0 additionalFeatures
+    in
+        baseCost + additionalCost
+
 productView : Address Action -> Product -> Html
 productView address product =
     let baseCost = calculateBaseCost product
@@ -427,13 +460,29 @@ selectedProductView address model =
 
 productDetailView : Address Action -> Product -> Html
 productDetailView address product =
-    let features = List.map (featureView address) product.features
+    let
+        baseCost = calculateBaseCost product
+        totalCost = calculateTotalCost product
+        features = List.map (featureView address) product.features
     in
-        div [] ([ text product.title ] ++ features)
+        div [] ([ productView address product ] ++ features)
 
 featureView : Address Action -> Feature -> Html
 featureView address feature =
-    div [] [ text feature.title, text (toString feature.cost) ]
+    -- TODO: Create a table for base features
+    -- TODO: Create a base cost calculation, read only
+    -- TODO: Create a table for additional features, editable Qty
+    -- TODO: Create a Quote Note input
+    -- TODO: Create a Total Cost field, read only
+    -- TODO: Create an Add To Quote button
+    div
+        [ style
+            [ ("backgroundColor", (themeLookup FeatureViewColor))
+            , ("color", (themeLookup FeatureViewTextColor))
+            , ("margin", "5px")
+            ]
+        ]
+        [ text feature.title, text (toString feature.cost) ]
 
 headerView : Address Action -> Model -> Html
 headerView address model =
