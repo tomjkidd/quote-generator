@@ -4,7 +4,8 @@
     "repository": "https://github.com/tomjkidd/quote-generator.git",
     "license": "Eclipse Public License - v 1.0",
     "source-directories": [
-        "."
+        ".",
+        "./src/Elm"
     ],
     "exposed-modules": [],
     "dependencies": {
