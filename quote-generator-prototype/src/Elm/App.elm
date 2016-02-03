@@ -306,7 +306,7 @@ view address model =
             [ headerView address model
 
             -- http://stackoverflow.com/questions/33420659/how-to-create-html-data-attributes-in-elm
-            , googleSignInView model
+            , loginView address model
 
             , button
                 [ class btnClass, onClick address RequestAuth, show model.loggedIn ]
@@ -320,16 +320,6 @@ view address model =
 
 loginView : Address Action -> Model -> Html
 loginView address model =
-    div
-        []
-        [ text (toString model.page)
-        , div []
-            -- http://stackoverflow.com/questions/33420659/how-to-create-html-data-attributes-in-elm
-            [ googleSignInView model ]
-        ]
-
-googleSignInView : Model -> Html
-googleSignInView model =
     div
         [ class "login-view", hidden model.loggedIn, style [ ("width", "500px"),  ("margin", "0 auto")] ]
         [ div
@@ -348,14 +338,18 @@ googleSignInView model =
                 , div [ class "login-subtitle h3"] [  i18nLookup LoginSubtitle |> text ]
                 ]
             ]
-        , div
-            [ class "g-signin2"
-            , style [ ("width", "120"), ("margin", "0 auto"), ("padding", "10px 0 0 0") ]
-            , attribute "data-onsuccess" "onSignIn"
-            , attribute "data-theme" "dark"
-            ] []
+        , googleSignInView address model
         ]
 
+-- http://stackoverflow.com/questions/33420659/how-to-create-html-data-attributes-in-elm
+googleSignInView : Address Action -> Model -> Html
+googleSignInView address model =
+    div
+        [ class "g-signin2"
+        , style [ ("width", "120"), ("margin", "0 auto"), ("padding", "10px 0 0 0") ]
+        , attribute "data-onsuccess" "onSignIn"
+        , attribute "data-theme" "dark"
+        ] []
 
 productCatalogView : Address Action -> Model -> Html
 productCatalogView address model =
@@ -364,7 +358,6 @@ productCatalogView address model =
         div
             [ show (model.page == ProductCatalog) ]
             products
-
 
 productView : Address Action -> Product -> Html
 productView address product =
