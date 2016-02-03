@@ -64,6 +64,31 @@ i18nLookup key =
             Nothing -> toString key
             Just e -> e
 
+type Theme = Crimson
+
+currentTheme : Theme
+currentTheme = Crimson
+
+crimsonTheme : Dict.Dict String String
+crimsonTheme =
+    let ts = toString
+    in Dict.fromList
+        [(ts ProductViewColor, "#A60010")]
+
+type ThemeStyle
+    = ProductViewColor
+
+themeLookup : ThemeStyle -> String
+themeLookup key =
+    let themeLookupDict =
+            case currentTheme of
+                Crimson -> crimsonTheme
+        entry = Dict.get (toString key) themeLookupDict
+    in
+        case entry of
+            Nothing -> ""
+            Just e -> e
+
 {-| -}
 type alias Model =
     { homeDetails : HomeDetails
@@ -180,19 +205,19 @@ sampleProducts : List Product
 sampleProducts =
     [
         { features = sampleFeatures
-        , description = "This is a fake product 1"
+        , description = "This is a fake product 1 description."
         , title = "This is fake product's title 1"
         , id = Just 1
         },
 
         { features = []
-        , description = "This is a fake product 2"
+        , description = "This is a fake product 2 description"
         , title = "This is fake product's title 2"
         , id = Just 2
         },
 
         { features = []
-        , description = "This is a fake product 3"
+        , description = "This is a fake product 3 description"
         , title = "This is fake product's title 3"
         , id = Just 3
         }
@@ -377,7 +402,13 @@ productView address product =
     let baseCost = calculateBaseCost product
     in
         div
-            [ onClick address (SelectProduct product) ]
+            [ onClick address (SelectProduct product)
+            , style
+                [ ("backgroundColor", (themeLookup ProductViewColor))
+                , ("margin", "5px")
+                ]
+            ]
+
             [ div [] [text product.title]
             , div [] [text product.description]
             , div [] [text (toString baseCost)]
