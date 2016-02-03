@@ -34,7 +34,7 @@ englishI18nTranslations =
             ,(ts Feature, "Feature")
             ,(ts Description, "Description")
             ,(ts Type, "Type")
-            ,(ts Cost, "Cost")
+            ,(ts Cost, "Unit Cost")
             ,(ts Quantity, "Quantity")
             ,(ts BaseCost, "Base Cost")
             ,(ts TotalCost, "Total Cost")
