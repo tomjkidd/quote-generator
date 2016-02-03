@@ -20,6 +20,7 @@ import StartApp
 import Effects exposing (Effects, Never)
 import Task
 import Dict
+import String
 --import Debug
 
 import I18n exposing (i18nLookup)
@@ -103,6 +104,7 @@ type Action
     | NavigateToPage Page -- Used to navigate the App
     --| UpdateFeature Feature
     --| UpdateProduct Product
+    | UpdateQuantity Int Int -- Id Quantity
     | AddProductToQuote Product
     | RemoveProductFromQuote Int
     | SubmitQuote
@@ -287,6 +289,24 @@ update action model =
                     let newProduct = { p | features = fs }
                     in
                         ({ model | selectedProduct = Just newProduct }, Effects.none)
+
+        UpdateQuantity id qty ->
+            let updateQty f =
+                case f.baseFeature of
+                    True -> f
+                    False ->
+                        case f.id of
+                            Nothing -> f
+                            Just fId ->
+                                if id == fId && qty >= 0 then { f | quantity = qty } else f
+            in
+                case model.selectedProduct of
+                    Nothing -> (model, Effects.none)
+                    Just p ->
+                        let newFeatures = List.map updateQty p.features
+                            newProduct = { p | features = newFeatures}
+                        in
+                            ({ model | selectedProduct = Just newProduct }, Effects.none)
 
         AddProductToQuote product ->
             let
@@ -527,7 +547,26 @@ additionalFeatureRowView address feature =
         , td [] [ text feature.description ]
         , td [] [ text (Maybe.withDefault "" feature.featureType) ]
         , td [ class "text-right" ] [ text (formatCurrency feature.cost) ]
-        , td [ class "text-center" ] [ text (toString feature.quantity) ]
+        , td
+            [ class "text-center" ]
+            [ input
+                [ value (toString feature.quantity)
+                , type' "number"
+                , on "input" targetValue
+                    (\qty ->
+                        case feature.id of
+                            Nothing -> Signal.message address NoOp
+                            Just id ->
+                                let parsedQty = (String.toInt qty)
+                                    action =
+                                        case parsedQty of
+                                            Err _ -> NoOp
+                                            Ok n -> (UpdateQuantity id n)
+                                in
+                                    Signal.message address action)
+                ]
+                []
+            ]
         ]
 
 additionalFeaturesBodyView : Address Action -> Product -> List Html
