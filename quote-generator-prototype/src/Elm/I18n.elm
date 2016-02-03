@@ -25,6 +25,7 @@ englishI18nTranslations =
             ,(ts HomeSummary, "Test home summary")
             ,(ts HomeDescription, "Test home description, long windedness.\n blah blah blah\n more blah blah.")
             ,(ts NavigateToProductCatalog, "Nav to Products")
+            ,(ts BackToProductCatalog, "Back to Products")
             ,(ts NavigateToQuoteSummary, "Quote Summary")
             ,(ts LogoutLabel, "Log Out")
             ,(ts ProductCatalogTitle, "Products")
@@ -41,7 +42,7 @@ englishI18nTranslations =
             ,(ts QuoteNotes, "Quote Notes")
             ,(ts AddProductToQuote, "Add to Quote")
             ,(ts RemoveProductFromQuote, "Remove from Quote")
-            ,(ts GenerateQuote, "Generate Quote")
+            ,(ts SubmitQuote, "Submit Quote")
             ,(ts QuoteSubmittedTitle, "Quote Submitted")
             ,(ts QuoteSubmittedInfo, "The Quote was submitted. Please retain the verification number to identify this Quote in the future.")
             ]
@@ -53,6 +54,7 @@ type I18nMessage
     | HomeSummary
     | HomeDescription
     | NavigateToProductCatalog
+    | BackToProductCatalog
     | NavigateToQuoteSummary
     | LogoutLabel
     | ProductCatalogTitle
@@ -69,7 +71,7 @@ type I18nMessage
     | QuoteNotes
     | AddProductToQuote
     | RemoveProductFromQuote
-    | GenerateQuote
+    | SubmitQuote
     | QuoteSubmittedTitle
     | QuoteSubmittedInfo
 

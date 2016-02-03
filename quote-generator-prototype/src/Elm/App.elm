@@ -86,7 +86,7 @@ type Page
     | ProductFeatures
     | FeatureCatalog -- Lists the features for a given product
     | QuoteSummary -- Gives the current Quote
-    -- | QuoteSubmitted -- Gives confirmation that quote was submitted
+    | SubmittedQuote -- Gives confirmation that quote was submitted
 
 {-| -}
 type Action
@@ -107,7 +107,7 @@ type Action
     | UpdateQuantity Int Int -- Id Quantity
     | AddProductToQuote Product
     | RemoveProductFromQuote Int
-    | SubmitQuote
+    | SubmitQuote Quote
     --| QuoteSubmitted -- Perhaps notify user quote was submitted
     --| Error String -- Toastr with error for user
 
@@ -312,8 +312,12 @@ update action model =
             let
                 oldQuote = model.quote
                 newQuote = { oldQuote | products = oldQuote.products ++ [product] }
+                navEffect =
+                    (NavigateToPage QuoteSummary)
+                        |> Task.succeed
+                        |> Effects.task
             in
-                ({ model | quote = newQuote }, Effects.none)
+                ({ model | quote = newQuote }, navEffect)
 
         RemoveProductFromQuote index ->
             let
@@ -324,7 +328,11 @@ update action model =
             in
                 ({ model | quote = newQuote }, Effects.none)
 
-        SubmitQuote -> (initialModel, Effects.none)
+        SubmitQuote q ->
+            -- TODO: Take request and save
+            let requestEffect = Effects.none
+            in
+                (initialModel, requestEffect)
 
 {-| -}
 view : Address Action -> Model -> Html
@@ -350,6 +358,7 @@ view address model =
                 ]
             , productCatalogView address model
             , selectedProductView address model
+            , quoteSummaryView address model
             ]
         ]
 
@@ -456,7 +465,17 @@ productDetailView address product =
         baseFeatures = baseFeaturesView address product
         additionalFeatures = additionalFeaturesView address product
     in
-        div [] ([ productView address product ] ++ [ baseFeatures, additionalFeatures ])
+        div [] <|
+            [ productView address product ] ++
+            [ baseFeatures
+            , div [ class "text-right"] [ text (formatCurrency baseCost)]
+            , additionalFeatures
+            , div [ class "text-right"] [ text (formatCurrency totalCost) ]
+            , div
+                [ class "submit-quote text-right"]
+                [ button [ onClick address (AddProductToQuote product) ] [ text (i18nLookup I18n.AddProductToQuote) ]
+                ]
+            ]
 
 {-| Based on minimum needed to create a Bootstrap Panel -}
 panelView : Address Action -> Html -> Html -> Html
@@ -551,6 +570,7 @@ additionalFeatureRowView address feature =
             [ class "text-center" ]
             [ input
                 [ value (toString feature.quantity)
+
                 , type' "number"
                 , on "input" targetValue
                     (\qty ->
@@ -564,6 +584,8 @@ additionalFeatureRowView address feature =
                                             Ok n -> (UpdateQuantity id n)
                                 in
                                     Signal.message address action)
+                , style [ ("width", "50px") ]
+                , class "text-right"
                 ]
                 []
             ]
@@ -605,6 +627,17 @@ headerView address model =
         , button [ onClick address (NavigateToPage QuoteSummary), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToQuoteSummary) ]
         , button [ onClick address RequestLogOut, show model.loggedIn ] [ text (i18nLookup I18n.LogoutLabel) ]
         ]
+
+quoteSummaryView : Address Action -> Model -> Html
+quoteSummaryView address model =
+    let quote = model.quote
+    in
+        div
+            [ show (model.page == QuoteSummary) ]
+            [ div [] [ text (toString model.quote) ]
+            , button [ onClick address (NavigateToPage ProductCatalog), show model.loggedIn ] [ text (i18nLookup I18n.BackToProductCatalog) ]
+            , button [ onClick address (SubmitQuote quote), show model.loggedIn ] [ text (i18nLookup I18n.SubmitQuote) ]
+            ]
 
 {-| -}
 app : StartApp.App Model
