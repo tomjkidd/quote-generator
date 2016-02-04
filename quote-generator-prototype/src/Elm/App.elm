@@ -26,6 +26,9 @@ import String
 import I18n exposing (i18nLookup)
 import Uuid
 
+showDebugPanel : Bool
+showDebugPanel = False
+
 type Theme = Crimson
 
 currentTheme : Theme
@@ -109,7 +112,7 @@ type Action
     --| UpdateProduct Product
     | UpdateQuantity Int Int -- Id Quantity
     | AddProductToQuote Product
-    | RemoveProductFromQuote Int
+    | RemoveProductFromQuote Int -- Index into Quote.products
     | SubmitQuote Quote
     | QuoteSubmitted (Maybe Uuid.Uuid) -- Perhaps notify user quote was submitted
     | ClearConfirmation
@@ -423,19 +426,40 @@ goToProductsButton address model =
         ]
         [ text (i18nLookup I18n.GoToProductCatalog) ]
 
+removeProductFromQuoteButton : Address Action -> Model -> Int -> Html
+removeProductFromQuoteButton address model index =
+    button
+        [ onClick address (RemoveProductFromQuote index)
+        , show model.loggedIn
+        ]
+        [ i [class "fa fa-close", style [ ("padding-right", "5px") ]] []
+        , text (i18nLookup I18n.RemoveProductFromQuote)
+        ]
+
+debugPanel : Address Action -> Model -> Html
+debugPanel address model =
+    if showDebugPanel
+        then
+            div
+                []
+                [ div [] [ text (toString model.page) ]
+                , div [] [ text (toString model.quote) ]
+                , div [] [ text (toString model.confirmation) ]
+                , requestAuthButton address model
+                ]
+        else div [] []
+
 {-| -}
 view : Address Action -> Model -> Html
 view address model =
     div
         []
-        [ text (toString model.page)
-        , text (toString model.confirmation)
+        [ debugPanel address model
         , div []
             [ headerView address model
 
             -- http://stackoverflow.com/questions/33420659/how-to-create-html-data-attributes-in-elm
             , loginView address model
-            , requestAuthButton address model
             , homeView address model
             , productCatalogView address model
             , selectedProductView address model
@@ -511,6 +535,11 @@ calculateTotalCost product =
     in
         baseCost + additionalCost
 
+calculateQuoteTotalCost : Quote -> Int
+calculateQuoteTotalCost quote =
+    let totalCosts = List.map calculateTotalCost quote.products
+    in
+        List.foldl (+) 0 totalCosts
 {-| Intentionally simple and for US -}
 formatCurrency : Int -> String
 formatCurrency value =
@@ -720,21 +749,36 @@ headerView address model =
         , button [ onClick address RequestLogOut, show model.loggedIn ] [ text (i18nLookup I18n.LogoutLabel) ]
         ]
 
+quoteSummaryProductView : Address Action -> Model -> Int -> Product -> Html
+quoteSummaryProductView address model index product =
+    let totalCost = calculateTotalCost product
+    in
+        div
+            []
+            [ div [] [ text product.title ]
+            , div [] [ text (formatCurrency totalCost) ]
+            , removeProductFromQuoteButton address model index
+            ]
+
+
 quoteSummaryView : Address Action -> Model -> Html
 quoteSummaryView address model =
-    let quote = model.quote
+    let quoteHasProducts = model.quote.products /= []
+        totalCost = calculateQuoteTotalCost model.quote
+        productViews = List.indexedMap (quoteSummaryProductView address model) model.quote.products
     in
         div
             [ class "quote-summary-view"
             , show (model.page == QuoteSummary)
             ]
 
-            [ div [] [ text (toString model.quote) ]
-            , div
-                [ show (model.quote.products == []) ]
+            [ div
+                [ hidden quoteHasProducts]
                 [ div [] [ text (i18nLookup I18n.NoProductsInQuote) ] ]
+            , div [ class "products", show quoteHasProducts ] productViews
+            , div [ class "quote-total-cost", show quoteHasProducts ] [ text (formatCurrency totalCost) ]
             , goToProductsButton address model
-            , button [ onClick address (SubmitQuote quote), show (model.loggedIn && model.quote.products /= []) ] [ text (i18nLookup I18n.SubmitQuote) ]
+            , button [ onClick address (SubmitQuote model.quote), show (model.loggedIn && model.quote.products /= []) ] [ text (i18nLookup I18n.SubmitQuote) ]
             ]
 
 submittedQuoteView : Address Action -> Model -> Html
