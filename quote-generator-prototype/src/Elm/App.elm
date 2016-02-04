@@ -24,6 +24,7 @@ import String
 --import Debug
 
 import I18n exposing (i18nLookup)
+import Uuid
 
 type Theme = Crimson
 
@@ -64,9 +65,11 @@ type alias Model =
     { homeDetails : HomeDetails
     , loggedIn : Bool
     , page : Page
+    , previousPage : Maybe Page
     , quote : Quote
     , productCatalog : List Product
     , selectedProduct : Maybe Product
+    , confirmation : Maybe Uuid.Uuid
     --, featureCatalog : List Feature
     --, TODO: Story for i18n (https://en.wikipedia.org/wiki/Internationalization_and_localization)
     }
@@ -81,7 +84,7 @@ type alias HomeDetails =
 {-| Represents the currently selected page of the app -}
 type Page
     = Login -- Manages user access to create Quotes
-    -- | Home -- Landing page for description of the tool
+    | Home -- Landing page for description of the tool
     | ProductCatalog -- Lists the available products
     | ProductFeatures
     | FeatureCatalog -- Lists the features for a given product
@@ -108,8 +111,10 @@ type Action
     | AddProductToQuote Product
     | RemoveProductFromQuote Int
     | SubmitQuote Quote
-    --| QuoteSubmitted -- Perhaps notify user quote was submitted
-    --| Error String -- Toastr with error for user
+    | QuoteSubmitted (Maybe Uuid.Uuid) -- Perhaps notify user quote was submitted
+    | ClearConfirmation
+    | Notify String -- Toastr with notification for user
+    | Error String -- Toastr with error for user
 
 {-| Represents a component of a Product. -}
 type alias Feature =
@@ -140,7 +145,17 @@ type alias Quote =
     --, date : Date
     , preparer : Maybe String
     , approved : Bool
-    , id : Maybe Int
+    , id : Maybe Uuid.Uuid
+    }
+
+initialQuote : Quote
+initialQuote =
+    { products = []
+    , client = "Test Client"
+    --, date = ?
+    , preparer = Nothing
+    , approved = False
+    , id = Nothing
     }
 
 {-| -}
@@ -154,16 +169,11 @@ initialModel =
         }
     , loggedIn = False
     , page = Login
+    , previousPage = Nothing
     , productCatalog = []
     , selectedProduct = Nothing
-    , quote =
-        { products = []
-        , client = "Test Client"
-        --, date = ?
-        , preparer = Nothing
-        , approved = False
-        , id = Nothing
-        }
+    , quote = initialQuote
+    , confirmation = Nothing
     }
 
 {-| -}
@@ -241,6 +251,11 @@ requestProductFeatures id =
     Task.succeed (LoadProductFeatures sampleFeatures)
     |> Effects.task
 
+requestSubmitQuote : Quote -> Effects Action
+requestSubmitQuote quote =
+    Task.succeed (QuoteSubmitted (Uuid.toUuid "33b446c6-8384-4953-b7a0-5ba0eb9d298f"))
+    |> Effects.task
+
 {-| -}
 update : Action -> Model -> (Model, Effects Action)
 update action model =
@@ -253,7 +268,7 @@ update action model =
 
         LogIn ->
             let navEffect =
-                (NavigateToPage ProductCatalog)
+                (NavigateToPage Home)
                     |> Task.succeed
                     |> Effects.task
             in
@@ -262,9 +277,19 @@ update action model =
         LogOut -> (initialModel, Effects.none)
 
         NavigateToPage page ->
-            case model.loggedIn of
-                True -> ({ model | page = page }, Effects.none)
-                False -> ({ model | page = Login }, Effects.none)
+            let currentPage = model.page
+                confirmationEffect =
+                    case currentPage of
+                        SubmittedQuote ->
+                            ClearConfirmation
+                                |> Task.succeed
+                                |> Effects.task
+
+                        _ -> Effects.none
+            in
+                case model.loggedIn of
+                    True -> ({ model | page = page, previousPage = Just currentPage }, confirmationEffect)
+                    False -> ({ model | page = Login, previousPage = Nothing }, confirmationEffect)
 
         RequestProductCatalog -> (model, requestProductCatalog)
 
@@ -330,35 +355,92 @@ update action model =
 
         SubmitQuote q ->
             -- TODO: Take request and save
-            let requestEffect = Effects.none
+            let requestEffect = requestSubmitQuote q
             in
-                (initialModel, requestEffect)
+                (model, requestEffect)
+
+        QuoteSubmitted uuid ->
+            let
+                getNavEffect id =
+                    case id of
+                        Nothing -> NavigateToPage QuoteSummary
+                        Just _ -> NavigateToPage SubmittedQuote
+
+                updateModel id model =
+                    case id of
+                        Nothing -> model
+                        Just _ -> { model | confirmation = id }
+
+                navEffect =
+                    getNavEffect uuid
+                        |> Task.succeed
+                        |> Effects.task
+
+                messageEffect =
+                    let effect =
+                        case uuid of
+                            Nothing ->
+                                Error (i18nLookup I18n.QuoteSubmitFail)
+
+                            Just _ ->
+                                Notify (i18nLookup I18n.QuoteSubmittedTitle)
+                    in
+                        effect
+                            |> Task.succeed
+                            |> Effects.task
+
+                newModel = updateModel uuid model
+            in
+                (newModel, Effects.batch [ navEffect, messageEffect ])
+
+        Error msg ->
+            (model, requestShowError msg)
+
+        Notify msg ->
+            (model, requestNotify msg)
+
+        ClearConfirmation ->
+            ({ model | confirmation = Nothing }, Effects.none)
+
+requestAuthButton : Address Action -> Model -> Html
+requestAuthButton address model =
+    let btnClass =
+      case model.loggedIn of
+          True -> "btn btn-default btn-xs"
+          False -> ""
+    in
+        button
+            [ class btnClass, onClick address RequestAuth, show model.loggedIn ]
+            [ i [class "fa fa-cog", style [ ("padding-right", "5px") ]] []
+            , text "Request Auth"
+            ]
+
+goToProductsButton : Address Action -> Model -> Html
+goToProductsButton address model =
+    button
+        [ onClick address (NavigateToPage ProductCatalog)
+        , show model.loggedIn
+        ]
+        [ text (i18nLookup I18n.GoToProductCatalog) ]
 
 {-| -}
 view : Address Action -> Model -> Html
 view address model =
-  let btnClass =
-    case model.loggedIn of
-        True -> "btn btn-default btn-xs"
-        False -> ""
-  in
     div
         []
         [ text (toString model.page)
+        , text (toString model.confirmation)
         , div []
             [ headerView address model
 
             -- http://stackoverflow.com/questions/33420659/how-to-create-html-data-attributes-in-elm
             , loginView address model
-
-            , button
-                [ class btnClass, onClick address RequestAuth, show model.loggedIn ]
-                [ i [class "fa fa-cog", style [ ("padding-right", "5px") ]] []
-                , text "Request Auth"
-                ]
+            , requestAuthButton address model
+            , homeView address model
             , productCatalogView address model
             , selectedProductView address model
             , quoteSummaryView address model
+            , submittedQuoteView address model
             ]
         ]
 
@@ -395,6 +477,16 @@ googleSignInView address model =
         , attribute "data-onsuccess" "onSignIn"
         , attribute "data-theme" "dark"
         ] []
+
+homeView : Address Action -> Model -> Html
+homeView address model =
+    div
+        [ class "home-view", show (model.page == Home) ]
+        [ div [] [ text (i18nLookup I18n.HomeTitle) ]
+        , div [] [ text (i18nLookup I18n.HomeSummary) ]
+        , div [] [ text (i18nLookup I18n.HomeDescription) ]
+        , goToProductsButton address model
+        ]
 
 productCatalogView : Address Action -> Model -> Html
 productCatalogView address model =
@@ -633,11 +725,34 @@ quoteSummaryView address model =
     let quote = model.quote
     in
         div
-            [ show (model.page == QuoteSummary) ]
-            [ div [] [ text (toString model.quote) ]
-            , button [ onClick address (NavigateToPage ProductCatalog), show model.loggedIn ] [ text (i18nLookup I18n.BackToProductCatalog) ]
-            , button [ onClick address (SubmitQuote quote), show model.loggedIn ] [ text (i18nLookup I18n.SubmitQuote) ]
+            [ class "quote-summary-view"
+            , show (model.page == QuoteSummary)
             ]
+
+            [ div [] [ text (toString model.quote) ]
+            , div
+                [ show (model.quote.products == []) ]
+                [ div [] [ text (i18nLookup I18n.NoProductsInQuote) ] ]
+            , goToProductsButton address model
+            , button [ onClick address (SubmitQuote quote), show (model.loggedIn && model.quote.products /= []) ] [ text (i18nLookup I18n.SubmitQuote) ]
+            ]
+
+submittedQuoteView : Address Action -> Model -> Html
+submittedQuoteView address model =
+    div
+        [ class "submitted-quote-view"
+        , show (model.page == SubmittedQuote)
+        ]
+
+        [ div [] [ text (i18nLookup I18n.QuoteSubmittedTitle) ]
+        , div [] [ text (i18nLookup I18n.QuoteSubmittedInfo) ]
+        , div
+            []
+            [ text (i18nLookup I18n.ConfirmationNumber)
+            , text (Uuid.toString model.confirmation)
+            ]
+        , goToProductsButton address model
+        ]
 
 {-| -}
 app : StartApp.App Model
@@ -680,6 +795,15 @@ requestLogOut = Signal.send requestMailbox.address { actionType = Just "LogOut",
     |> Task.map (\t -> NoOp)
     |> Effects.task
 
+requestShowError : String -> Effects Action
+requestShowError str = Signal.send requestMailbox.address { actionType = Just "Error", data = Just str }
+    |> Task.map (\t -> NoOp)
+    |> Effects.task
+
+requestNotify : String -> Effects Action
+requestNotify str = Signal.send requestMailbox.address { actionType = Just "Notify", data = Just str }
+    |> Task.map (\t -> NoOp)
+    |> Effects.task
 -- https://groups.google.com/forum/#!msg/elm-discuss/cImJ7DdvKE0/Lskxb7twBAAJ
 
 {-| -}

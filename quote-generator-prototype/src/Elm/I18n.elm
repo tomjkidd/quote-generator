@@ -25,7 +25,7 @@ englishI18nTranslations =
             ,(ts HomeSummary, "Test home summary")
             ,(ts HomeDescription, "Test home description, long windedness.\n blah blah blah\n more blah blah.")
             ,(ts NavigateToProductCatalog, "Nav to Products")
-            ,(ts BackToProductCatalog, "Back to Products")
+            ,(ts GoToProductCatalog, "Go to Products")
             ,(ts NavigateToQuoteSummary, "Quote Summary")
             ,(ts LogoutLabel, "Log Out")
             ,(ts ProductCatalogTitle, "Products")
@@ -42,9 +42,12 @@ englishI18nTranslations =
             ,(ts QuoteNotes, "Quote Notes")
             ,(ts AddProductToQuote, "Add to Quote")
             ,(ts RemoveProductFromQuote, "Remove from Quote")
+            ,(ts NoProductsInQuote, "There are currently no Products in the Quote.")
             ,(ts SubmitQuote, "Submit Quote")
+            ,(ts QuoteSubmitFail, "Submitting the Quote resulted in an error.")
             ,(ts QuoteSubmittedTitle, "Quote Submitted")
             ,(ts QuoteSubmittedInfo, "The Quote was submitted. Please retain the verification number to identify this Quote in the future.")
+            ,(ts ConfirmationNumber, "Confirmation Number:")
             ]
 
 type I18nMessage
@@ -54,7 +57,7 @@ type I18nMessage
     | HomeSummary
     | HomeDescription
     | NavigateToProductCatalog
-    | BackToProductCatalog
+    | GoToProductCatalog
     | NavigateToQuoteSummary
     | LogoutLabel
     | ProductCatalogTitle
@@ -71,9 +74,12 @@ type I18nMessage
     | QuoteNotes
     | AddProductToQuote
     | RemoveProductFromQuote
+    | NoProductsInQuote
     | SubmitQuote
+    | QuoteSubmitFail
     | QuoteSubmittedTitle
     | QuoteSubmittedInfo
+    | ConfirmationNumber
 
 i18nLookup : I18nMessage -> String
 i18nLookup key =

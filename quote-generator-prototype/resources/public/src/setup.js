@@ -59,6 +59,11 @@ function signOut() {
                 // Let Elm know that log out succeeded
                 app.ports.responsePort.send(appPortRequest);
                 break;
+            case "Error":
+                toastr.error(appPortRequest.data);
+                break;
+            case "Notify":
+                toastr.success(appPortRequest.data);
             default:
                 console.log("Ignoring Request: " + appPortRequest)
         }
