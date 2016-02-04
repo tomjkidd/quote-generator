@@ -369,7 +369,7 @@ update action model =
                 updateModel id model =
                     case id of
                         Nothing -> model
-                        Just _ -> { model | confirmation = id }
+                        Just _ -> { model | confirmation = id, quote = initialQuote }
 
                 navEffect =
                     getNavEffect uuid
