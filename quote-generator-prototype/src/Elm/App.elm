@@ -1,15 +1,15 @@
 module App
-    (Model, Page, Action, Feature, Product, Quote, initialModel, update, view, main, app, requestAuth, requestLogOut, AppPortRequest, AppPortResponse, responsePortAction, requestMailbox, sampleProduct, removeAt)
+    (initialModel, update, view, main, app, requestAuth, requestLogOut, AppPortRequest, AppPortResponse, responsePortAction, requestMailbox, sampleProduct)
     where
 
 {-| Eventually this will explain what is going on.
 Everything is being thrown together for now to experiment with getting the prototype running. The goal is not to have it factored yet, because I still have to discover some of that for myself.
 
-@docs Model, Page, Action, Feature, Product, Quote, initialModel, update, view, main, app
+@docs initialModel, update, view, main, app
 
 @docs requestAuth, requestLogOut, AppPortRequest, AppPortResponse, responsePortAction, requestMailbox
 
-@docs sampleProduct, removeAt
+@docs sampleProduct
 -}
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -19,137 +19,21 @@ import StartApp
 --import Date exposing (Date)
 import Effects exposing (Effects, Never)
 import Task
-import Dict
 import String
---import Debug
 
 import I18n exposing (i18nLookup)
+import Theme exposing (themeLookup)
 import Uuid
+import Common.Buttons exposing (goToProductsButton, logoutButton)
+import Common.Util exposing (show, removeAt)
+
+import Model exposing (..)
+import Action exposing (Action (..))
+import Login
+import Home
 
 showDebugPanel : Bool
 showDebugPanel = False
-
-type Theme = Crimson
-
-currentTheme : Theme
-currentTheme = Crimson
-
-crimsonTheme : Dict.Dict String String
-crimsonTheme =
-    let ts = toString
-    in Dict.fromList
-        [ (ts LoginViewColor, "#262626")
-        , (ts LoginViewTextColor, "white")
-        , (ts ProductViewColor, "#A60010")
-        , (ts FeatureViewColor, "#262626")
-        , (ts FeatureViewTextColor, "white")
-        ]
-
-type ThemeStyle
-    = LoginViewColor
-    | LoginViewTextColor
-    | ProductViewColor
-    | FeatureViewColor
-    | FeatureViewTextColor
-
-themeLookup : ThemeStyle -> String
-themeLookup key =
-    let themeLookupDict =
-            case currentTheme of
-                Crimson -> crimsonTheme
-        entry = Dict.get (toString key) themeLookupDict
-    in
-        case entry of
-            Nothing -> ""
-            Just e -> e
-
-{-| -}
-type alias Model =
-    { homeDetails : HomeDetails
-    , loggedIn : Bool
-    , page : Page
-    , previousPage : Maybe Page
-    , quote : Quote
-    , productCatalog : List Product
-    , selectedProduct : Maybe Product
-    , confirmation : Maybe Uuid.Uuid
-    --, featureCatalog : List Feature
-    --, TODO: Story for i18n (https://en.wikipedia.org/wiki/Internationalization_and_localization)
-    }
-
-type alias HomeDetails =
-    { title : String
-    , summary : String
-    , description : String
-    , navigateTo : Page
-    }
-
-{-| Represents the currently selected page of the app -}
-type Page
-    = Login -- Manages user access to create Quotes
-    | Home -- Landing page for description of the tool
-    | ProductCatalog -- Lists the available products
-    | ProductFeatures
-    | FeatureCatalog -- Lists the features for a given product
-    | QuoteSummary -- Gives the current Quote
-    | SubmittedQuote -- Gives confirmation that quote was submitted
-
-{-| -}
-type Action
-    = NoOp
-    | RequestAuth -- Request info externally for Google auth
-    -- | Auth String -- Perform auth check on user
-    | RequestLogOut -- Request LogOut externally for Google auth
-    | LogIn -- On valid user
-    | LogOut -- Allow user to log out
-    | RequestProductCatalog -- Get the list of Products as an Effect
-    | LoadProducts (List Product) -- Update productCatalog with available Products
-    | SelectProduct Product -- When product is chosen from list of products, candidate for Quote
-    | LoadProductFeatures (List Feature) -- Loads features for product
-    --| RequestFeatureCatalog Int -- Get the list of Features for a given Product
-    | NavigateToPage Page -- Used to navigate the App
-    --| UpdateFeature Feature
-    --| UpdateProduct Product
-    | UpdateQuantity Int Int -- Id Quantity
-    | AddProductToQuote Product
-    | RemoveProductFromQuote Int -- Index into Quote.products
-    | SubmitQuote Quote
-    | QuoteSubmitted (Maybe Uuid.Uuid) -- Perhaps notify user quote was submitted
-    | ClearConfirmation
-    | Notify String -- Toastr with notification for user
-    | Error String -- Toastr with error for user
-
-{-| Represents a component of a Product. -}
-type alias Feature =
-    { description : String
-    , cost : Int
-    , title : String
-    , quantity: Int
-    , id : Maybe Int
-    , baseFeature : Bool -- True for base part of the report, false for addtional. A feature can show up as a base and additional feature.
-    , featureType : Maybe String
-    }
-
-{-| Represents a Product offered by a provider. -}
-type alias Product =
-    { features : List Feature
-    , description : String
-    , title : String
-    , id : Maybe Int
-    , note : Maybe String -- Available when creating a quote
-    , linkToSample : Maybe String -- May be available to demonstrate a sample
-    , quantity : Maybe Int -- Can have a value when adding to a quote
-    }
-
-{-| Represents a Quote for a set of Products, used by a client to consider cost of services. -}
-type alias Quote =
-    { products : List Product
-    , client : String
-    --, date : Date
-    , preparer : Maybe String
-    , approved : Bool
-    , id : Maybe Uuid.Uuid
-    }
 
 initialQuote : Quote
 initialQuote =
@@ -418,14 +302,6 @@ requestAuthButton address model =
             , text "Request Auth"
             ]
 
-goToProductsButton : Address Action -> Model -> Html
-goToProductsButton address model =
-    button
-        [ onClick address (NavigateToPage ProductCatalog)
-        , show model.loggedIn
-        ]
-        [ text (i18nLookup I18n.GoToProductCatalog) ]
-
 removeProductFromQuoteButton : Address Action -> Model -> Int -> Html
 removeProductFromQuoteButton address model index =
     button
@@ -459,57 +335,13 @@ view address model =
             [ headerView address model
 
             -- http://stackoverflow.com/questions/33420659/how-to-create-html-data-attributes-in-elm
-            , loginView address model
-            , homeView address model
+            , Login.view address model
+            , Home.view address model
             , productCatalogView address model
             , selectedProductView address model
             , quoteSummaryView address model
             , submittedQuoteView address model
             ]
-        ]
-
-loginView : Address Action -> Model -> Html
-loginView address model =
-    div
-        [ class "login-view", hidden model.loggedIn, style [ ("width", "500px"),  ("margin", "0 auto")] ]
-        [ div
-            [ class "login-background"
-            , style
-                [ ("backgroundColor", themeLookup LoginViewColor)
-                , ("color", themeLookup LoginViewTextColor)
-                , ("display", "flex")
-                , ("flex-direction", "row")
-
-                ]
-            ]
-            [ img [ src "images/login-logo.png", width 100, height 100 ] []
-            , div
-                [ style [ ("align-self", "center"), ("justify-content", "center"), ("padding", "0 0 0 15px") ]]
-                [ div [ class "login-title h2"] [ i18nLookup I18n.LoginTitle |> text ]
-                , div [ class "login-subtitle h3"] [  i18nLookup I18n.LoginSubtitle |> text ]
-                ]
-            ]
-        , googleSignInView address model
-        ]
-
--- http://stackoverflow.com/questions/33420659/how-to-create-html-data-attributes-in-elm
-googleSignInView : Address Action -> Model -> Html
-googleSignInView address model =
-    div
-        [ class "g-signin2"
-        , style [ ("width", "120"), ("margin", "0 auto"), ("padding", "10px 0 0 0") ]
-        , attribute "data-onsuccess" "onSignIn"
-        , attribute "data-theme" "dark"
-        ] []
-
-homeView : Address Action -> Model -> Html
-homeView address model =
-    div
-        [ class "home-view", show (model.page == Home) ]
-        [ div [] [ text (i18nLookup I18n.HomeTitle) ]
-        , div [] [ text (i18nLookup I18n.HomeSummary) ]
-        , div [] [ text (i18nLookup I18n.HomeDescription) ]
-        , goToProductsButton address model
         ]
 
 productCatalogView : Address Action -> Model -> Html
@@ -552,7 +384,7 @@ productView address product =
         div
             [ onClick address (SelectProduct product)
             , style
-                [ ("backgroundColor", (themeLookup ProductViewColor))
+                [ ("backgroundColor", (themeLookup Theme.ProductViewColor))
                 , ("margin", "5px 0")
                 ]
             ]
@@ -733,8 +565,8 @@ featureView : Address Action -> Feature -> Html
 featureView address feature =
     div
         [ style
-            [ ("backgroundColor", (themeLookup FeatureViewColor))
-            , ("color", (themeLookup FeatureViewTextColor))
+            [ ("backgroundColor", (themeLookup Theme.FeatureViewColor))
+            , ("color", (themeLookup Theme.FeatureViewTextColor))
             , ("margin", "5px")
             ]
         ]
@@ -746,7 +578,7 @@ headerView address model =
         [ img [ src "images/header-logo.png", class "header-logo", height 50, width 300 ] []
         , button [ onClick address (NavigateToPage ProductCatalog), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToProductCatalog) ]
         , button [ onClick address (NavigateToPage QuoteSummary), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToQuoteSummary) ]
-        , button [ onClick address RequestLogOut, show model.loggedIn ] [ text (i18nLookup I18n.LogoutLabel) ]
+        , logoutButton address model
         ]
 
 quoteSummaryProductView : Address Action -> Model -> Int -> Product -> Html
@@ -796,6 +628,7 @@ submittedQuoteView address model =
             , text (Uuid.toString model.confirmation)
             ]
         , goToProductsButton address model
+        , logoutButton address model
         ]
 
 {-| -}
@@ -812,20 +645,6 @@ app =
 main : Signal Html
 main =
   app.html
-
-{-| -}
-removeAt : Int -> List a -> List a
-removeAt index xs =
-    let
-        tuples = List.indexedMap (,) xs
-        filtered = List.filter (\(n, x) -> n /= index) tuples
-        result = List.map (\(n, x) -> x) filtered
-    in
-        result
-
-{-| Convenience function for Html manipulation -}
-show : Bool -> Attribute
-show b = hidden (not b)
 
 {-| -}
 requestAuth : Effects Action
