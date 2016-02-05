@@ -25,12 +25,14 @@ import I18n exposing (i18nLookup)
 import Theme exposing (themeLookup)
 import Uuid
 import Common.Buttons exposing (goToProductsButton, logoutButton)
-import Common.Util exposing (show, removeAt)
+import Common.Util exposing (show, removeAt, formatCurrency,
+    calculateBaseCost, calculateTotalCost, calculateQuoteTotalCost)
 
 import Model exposing (..)
 import Action exposing (Action (..))
 import Login
 import Home
+import ProductCatalog
 
 showDebugPanel : Bool
 showDebugPanel = False
@@ -337,62 +339,12 @@ view address model =
             -- http://stackoverflow.com/questions/33420659/how-to-create-html-data-attributes-in-elm
             , Login.view address model
             , Home.view address model
-            , productCatalogView address model
+            , ProductCatalog.view address model
             , selectedProductView address model
             , quoteSummaryView address model
             , submittedQuoteView address model
             ]
         ]
-
-productCatalogView : Address Action -> Model -> Html
-productCatalogView address model =
-    let products = List.map (productView address) model.productCatalog
-    in
-        div
-            [ show (model.page == ProductCatalog) ]
-            products
-
-calculateBaseCost : Product -> Int
-calculateBaseCost product =
-    let baseFeatures = List.filter (\p -> p.baseFeature) product.features
-        baseCost = List.foldl (\cur acc -> acc + (cur.cost * cur.quantity)) 0 baseFeatures
-    in
-        baseCost
-
-calculateTotalCost : Product -> Int
-calculateTotalCost product =
-    let baseCost = calculateBaseCost product
-        additionalFeatures = List.filter (\p -> not p.baseFeature) product.features
-        additionalCost = List.foldl (\cur acc -> acc + (cur.cost * cur.quantity)) 0 additionalFeatures
-    in
-        baseCost + additionalCost
-
-calculateQuoteTotalCost : Quote -> Int
-calculateQuoteTotalCost quote =
-    let totalCosts = List.map calculateTotalCost quote.products
-    in
-        List.foldl (+) 0 totalCosts
-{-| Intentionally simple and for US -}
-formatCurrency : Int -> String
-formatCurrency value =
-    "$ " ++ (toString value)
-
-productView : Address Action -> Product -> Html
-productView address product =
-    let baseCost = calculateBaseCost product
-    in
-        div
-            [ onClick address (SelectProduct product)
-            , style
-                [ ("backgroundColor", (themeLookup Theme.ProductViewColor))
-                , ("margin", "5px 0")
-                ]
-            ]
-
-            [ div [] [text product.title]
-            , div [] [text product.description]
-            , div [] [text (toString baseCost)]
-            ]
 
 selectedProductView : Address Action -> Model -> Html
 selectedProductView address model =
@@ -419,7 +371,7 @@ productDetailView address product =
         additionalFeatures = additionalFeaturesView address product
     in
         div [] <|
-            [ productView address product ] ++
+            [ ProductCatalog.productView address product ] ++
             [ baseFeatures
             , div [ class "text-right"] [ text (formatCurrency baseCost)]
             , additionalFeatures
