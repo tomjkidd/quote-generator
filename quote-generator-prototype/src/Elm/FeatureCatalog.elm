@@ -1,0 +1,4 @@
+module FeatureCatalog
+    (view
+    )
+    where

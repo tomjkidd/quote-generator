@@ -1,5 +1,5 @@
 module App
-    (initialModel, update, view, main, app, requestAuth, requestLogOut, AppPortRequest, AppPortResponse, responsePortAction, requestMailbox, sampleProduct)
+    (initialModel, update, view, main, app, requestAuth, requestLogOut, AppPortRequest, AppPortResponse, responsePortAction, requestMailbox)
     where
 
 {-| Eventually this will explain what is going on.
@@ -27,6 +27,8 @@ import Uuid
 import Common.Buttons exposing (goToProductsButton, logoutButton)
 import Common.Util exposing (show, removeAt, formatCurrency,
     calculateBaseCost, calculateTotalCost, calculateQuoteTotalCost)
+import Common.Debug
+import Sample.Data exposing (sampleFeatures, sampleProduct, sampleProducts)
 
 import Model exposing (..)
 import Action exposing (Action (..))
@@ -35,7 +37,7 @@ import Home
 import ProductCatalog
 
 showDebugPanel : Bool
-showDebugPanel = False
+showDebugPanel = True
 
 initialQuote : Quote
 initialQuote =
@@ -64,71 +66,6 @@ initialModel =
     , quote = initialQuote
     , confirmation = Nothing
     }
-
-{-| -}
-sampleProduct : Product
-sampleProduct =
-    { features = []
-    , description = "This is a fake product"
-    , title = "This is fake product's title"
-    , id = Nothing
-    , note = Nothing
-    , linkToSample = Nothing
-    , quantity = Nothing
-    }
-
-sampleProducts : List Product
-sampleProducts =
-    [
-        { features = sampleFeatures
-        , description = "This is a fake product 1 description."
-        , title = "This is fake product's title 1"
-        , id = Just 1
-        , note = Nothing
-        , linkToSample = Nothing
-        , quantity = Nothing
-        },
-
-        { features = []
-        , description = "This is a fake product 2 description"
-        , title = "This is fake product's title 2"
-        , id = Just 2
-        , note = Nothing
-        , linkToSample = Nothing
-        , quantity = Nothing
-        },
-
-        { features = []
-        , description = "This is a fake product 3 description"
-        , title = "This is fake product's title 3"
-        , id = Just 3
-        , note = Nothing
-        , linkToSample = Nothing
-        , quantity = Nothing
-        }
-    ]
-
-sampleFeatures : List Feature
-sampleFeatures =
-    [
-        { description = "Feature 1 description"
-        , cost = 100
-        , title = "Feature 1 title"
-        , quantity = 3
-        , id = Just 1
-        , baseFeature = True
-        , featureType = Nothing
-        },
-
-        { description = "Feature 2 description"
-        , cost = 200
-        , title = "Feature 2 title"
-        , quantity = 1
-        , id = Just 2
-        , baseFeature = False
-        , featureType = Nothing
-        }
-    ]
 
 requestProductCatalog : Effects Action
 requestProductCatalog =
@@ -291,19 +228,6 @@ update action model =
         ClearConfirmation ->
             ({ model | confirmation = Nothing }, Effects.none)
 
-requestAuthButton : Address Action -> Model -> Html
-requestAuthButton address model =
-    let btnClass =
-      case model.loggedIn of
-          True -> "btn btn-default btn-xs"
-          False -> ""
-    in
-        button
-            [ class btnClass, onClick address RequestAuth, show model.loggedIn ]
-            [ i [class "fa fa-cog", style [ ("padding-right", "5px") ]] []
-            , text "Request Auth"
-            ]
-
 removeProductFromQuoteButton : Address Action -> Model -> Int -> Html
 removeProductFromQuoteButton address model index =
     button
@@ -314,29 +238,14 @@ removeProductFromQuoteButton address model index =
         , text (i18nLookup I18n.RemoveProductFromQuote)
         ]
 
-debugPanel : Address Action -> Model -> Html
-debugPanel address model =
-    if showDebugPanel
-        then
-            div
-                []
-                [ div [] [ text (toString model.page) ]
-                , div [] [ text (toString model.quote) ]
-                , div [] [ text (toString model.confirmation) ]
-                , requestAuthButton address model
-                ]
-        else div [] []
-
 {-| -}
 view : Address Action -> Model -> Html
 view address model =
     div
         []
-        [ debugPanel address model
+        [ Common.Debug.debugPanel address model showDebugPanel
         , div []
             [ headerView address model
-
-            -- http://stackoverflow.com/questions/33420659/how-to-create-html-data-attributes-in-elm
             , Login.view address model
             , Home.view address model
             , ProductCatalog.view address model
@@ -600,26 +509,35 @@ main =
 
 {-| -}
 requestAuth : Effects Action
-requestAuth = Signal.send requestMailbox.address { actionType = Just "RequestAuth", data = Nothing }
-    |> Task.map (\t -> NoOp)
-    |> Effects.task
+requestAuth = requestAction RequestAuth Nothing
 
 {-| -}
 requestLogOut : Effects Action
-requestLogOut = Signal.send requestMailbox.address { actionType = Just "LogOut", data = Nothing }
-    |> Task.map (\t -> NoOp)
-    |> Effects.task
+requestLogOut = requestAction LogOut Nothing
 
 requestShowError : String -> Effects Action
-requestShowError str = Signal.send requestMailbox.address { actionType = Just "Error", data = Just str }
-    |> Task.map (\t -> NoOp)
-    |> Effects.task
+requestShowError str = requestAction (Error str) (Just str)
 
 requestNotify : String -> Effects Action
-requestNotify str = Signal.send requestMailbox.address { actionType = Just "Notify", data = Just str }
-    |> Task.map (\t -> NoOp)
-    |> Effects.task
+requestNotify str = requestAction (Notify str) (Just str)
 -- https://groups.google.com/forum/#!msg/elm-discuss/cImJ7DdvKE0/Lskxb7twBAAJ
+
+requestAction : Action -> Maybe String -> Effects Action
+requestAction action str =
+    let record =
+        case action of
+            RequestAuth -> { actionType = Just (toString action), data = Nothing }
+            LogOut -> { actionType = Just (toString action), data = Nothing }
+
+            Error msg -> { actionType = Just "Error", data = Just msg }
+
+            Notify msg -> { actionType = Just "Notify", data = Just msg }
+
+            _ -> { actionType = Nothing, data = Nothing }
+    in
+        Signal.send requestMailbox.address record
+            |> Task.map (\t -> NoOp)
+            |> Effects.task
 
 {-| -}
 type alias AppPortRequest =
@@ -633,7 +551,7 @@ type alias AppPortResponse =
     , data : Maybe String
     }
 
-{-| -}
+{-| Provided to StartApp to translate JS to Elm responses into Actions -}
 responsePortAction : Signal Action
 responsePortAction = Signal.map
     (\response ->
@@ -643,13 +561,15 @@ responsePortAction = Signal.map
             _ -> NoOp )
     responsePort
 
-{-| -}
+{-| A place to send request messages that will go out through requestPort -}
 requestMailbox : Signal.Mailbox AppPortRequest
 requestMailbox = Signal.mailbox { actionType = Nothing, data = Nothing }
 
+{-| The port for outgoing Elm to JS messages -}
 port requestPort : Signal AppPortRequest
 port requestPort = requestMailbox.signal
 
+{-| The port for incoming JS to Elm messages -}
 port responsePort : Signal AppPortResponse
 
 port tasks : Signal (Task.Task Never ())
