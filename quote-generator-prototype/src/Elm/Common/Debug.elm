@@ -7,10 +7,14 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Signal exposing (Address)
+import Json.Decode
 
 import Action exposing (Action (..))
 import Model exposing (Model)
 import Common.Util exposing (show)
+
+import Sample.Data exposing (sampleJsonFeature, sampleJsonProduct)
+import Decoders
 
 -- TODO: Create a simple wrapper for making these buttons.
 
@@ -55,15 +59,20 @@ requestNotifyButton address model =
 
 debugPanel : Address Action -> Model -> Bool -> Html
 debugPanel address model showDebugPanel =
-    if showDebugPanel
-        then
-            div
-                []
-                [ div [] [ text (toString model.page) ]
-                , div [] [ text (toString model.quote) ]
-                , div [] [ text (toString model.confirmation) ]
-                , requestAuthButton address model
-                , requestNotifyButton address model
-                , requestErrorButton address model
-                ]
-        else div [] []
+    let featureDecodeTest = Json.Decode.decodeString Decoders.feature sampleJsonFeature
+        productDecodeTest = Json.Decode.decodeString Decoders.product sampleJsonProduct
+    in
+        if showDebugPanel
+            then
+                div
+                    []
+                    [ div [] [ text (toString model.page) ]
+                    , div [] [ text (toString model.quote) ]
+                    , div [] [ text (toString model.confirmation) ]
+                    , div [] [ text (toString featureDecodeTest) ]
+                    , div [] [ text (toString productDecodeTest) ]
+                    , requestAuthButton address model
+                    , requestNotifyButton address model
+                    , requestErrorButton address model
+                    ]
+            else div [] []

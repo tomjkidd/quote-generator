@@ -2,6 +2,8 @@ module Sample.Data
     ( sampleProduct
     , sampleProducts
     , sampleFeatures
+    , sampleJsonFeature
+    , sampleJsonProduct
     )
     where
 
@@ -71,3 +73,58 @@ sampleFeatures =
         , featureType = Nothing
         }
     ]
+
+sampleJsonFeature : String
+sampleJsonFeature =
+ "{\"description\":\"Sample Json Feature Description\"
+    ,\"multiplier\":0.15
+    ,\"title\":\"Sample Json Feature Title\"
+    ,\"featureType\":\"Test Type\"
+    ,\"note\":\"Note for Test\"
+    ,\"id\":1
+    ,\"baseFeature\":true
+    ,\"cost\":100.0
+    ,\"quantity\":1
+    }"
+
+sampleJsonProduct : String
+sampleJsonProduct =
+    "{\"id\":1
+    ,\"title\":\"Sample Json Product Title\"
+    ,\"description\":\"Sample Json Product Description\"
+    ,\"features\":
+        [ {\"description\":\"Feature 1 Desc\"
+            ,\"multiplier\":0.15
+            ,\"title\":\"Feature 1 Title\"
+            ,\"featureType\":\"Blah\"
+            ,\"note\":\"Feature 1 note\"
+            ,\"id\":1
+            ,\"baseFeature\":true
+            ,\"cost\":100.0
+            ,\"quantity\":1
+            }
+        ,{\"description\":\"Feature 2 Desc\"
+            ,\"multiplier\":0.15
+            ,\"title\":\"Feature 2 Title\"
+            ,\"featureType\":\"Blah\"
+            ,\"note\":\"Feature 2 note\"
+            ,\"id\":2
+            ,\"baseFeature\":true
+            ,\"cost\":200.0
+            ,\"quantity\":1
+            }
+        ,{\"description\":\"Feature 3 Desc\"
+            ,\"multiplier\":0.15
+            ,\"title\":\"Feature 3 Title\"
+            ,\"featureType\":\"Blah\"
+            ,\"note\":\"Feature 3 note\"
+            ,\"id\":3
+            ,\"baseFeature\":false
+            ,\"cost\":300.0
+            ,\"quantity\":1
+            }
+        ]
+    ,\"note\": null
+    ,\"linkToSample\": null
+    ,\"quantity\": null
+    }"

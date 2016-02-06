@@ -5,12 +5,9 @@ module Common.Bootstrap.Util
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
 import Signal exposing (Address)
 
-import Model exposing (Page (..))
 import Action exposing (Action (..))
-import Model exposing (Model)
 
 {-| Based on minimum needed to create a Bootstrap Panel -}
 panelView : Address Action -> Html -> Html -> Html

@@ -43,21 +43,21 @@ type Page
 
 {-| Represents a component of a Product. -}
 type alias Feature =
-    { description : String
-    , cost : Int
+    { id : Maybe Int
     , title : String
+    , description : String
+    , cost : Int
     , quantity: Int
-    , id : Maybe Int
     , baseFeature : Bool -- True for base part of the report, false for addtional. A feature can show up as a base and additional feature.
     , featureType : Maybe String
     }
 
 {-| Represents a Product offered by a provider. -}
 type alias Product =
-    { features : List Feature
-    , description : String
+    { id : Maybe Int
     , title : String
-    , id : Maybe Int
+    , description : String
+    , features : List Feature
     , note : Maybe String -- Available when creating a quote
     , linkToSample : Maybe String -- May be available to demonstrate a sample
     , quantity : Maybe Int -- Can have a value when adding to a quote
