@@ -7,7 +7,10 @@ module Sample.Data
     )
     where
 
+import Json.Decode
+
 import Model exposing (Product, Feature)
+import Decoders
 
 {-| -}
 sampleProduct : Product
@@ -23,34 +26,38 @@ sampleProduct =
 
 sampleProducts : List Product
 sampleProducts =
-    [
-        { features = sampleFeatures
-        , description = "This is a fake product 1 description."
-        , title = "This is fake product's title 1"
-        , id = Just 1
-        , note = Nothing
-        , linkToSample = Nothing
-        , quantity = Nothing
-        },
+    let jsonLoadedFeature = Json.Decode.decodeString Decoders.feature sampleJsonFeature
+        jsonLoadedFeatures =
+            case jsonLoadedFeature of
+                Ok f -> [f]
+                Err _ -> []
+        jsonLoadedProduct = Json.Decode.decodeString Decoders.product sampleJsonProduct
+        productToUse =
+            case jsonLoadedProduct of
+                Ok p -> p
+                Err _ -> sampleProduct
+    in
+        [
+            { features = sampleFeatures
+            , description = "This is a fake product 1 description."
+            , title = "This is fake product's title 1"
+            , id = Just 1
+            , note = Nothing
+            , linkToSample = Nothing
+            , quantity = Nothing
+            },
 
-        { features = []
-        , description = "This is a fake product 2 description"
-        , title = "This is fake product's title 2"
-        , id = Just 2
-        , note = Nothing
-        , linkToSample = Nothing
-        , quantity = Nothing
-        },
+            { features = jsonLoadedFeatures
+            , description = "This is a fake product 2 description"
+            , title = "This is fake product's title 2"
+            , id = Just 2
+            , note = Nothing
+            , linkToSample = Nothing
+            , quantity = Nothing
+            },
 
-        { features = []
-        , description = "This is a fake product 3 description"
-        , title = "This is fake product's title 3"
-        , id = Just 3
-        , note = Nothing
-        , linkToSample = Nothing
-        , quantity = Nothing
-        }
-    ]
+            productToUse
+        ]
 
 sampleFeatures : List Feature
 sampleFeatures =
