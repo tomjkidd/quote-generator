@@ -21,4 +21,13 @@ elm.js
 tests/test.js
 /resources/public/src/App.js
 
+#################
+## Exclude from Git
+#################
 /git-ignore-folder
+
+#################
+## Ensure backup directory
+#################
+backup/*
+!backup/readme.md
