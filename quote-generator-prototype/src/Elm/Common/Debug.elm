@@ -8,13 +8,15 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Signal exposing (Address)
 import Json.Decode
+import Json.Encode
 
 import Action exposing (Action (..))
 import Model exposing (Model)
 import Common.Util exposing (show)
 
-import Sample.Data exposing (sampleJsonFeature, sampleJsonProduct)
+import Sample.Data exposing (sampleQuote, sampleJsonFeature, sampleJsonProduct)
 import Decoders
+import Encoders
 
 -- TODO: Create a simple wrapper for making these buttons.
 
@@ -61,6 +63,23 @@ debugPanel : Address Action -> Model -> Bool -> Html
 debugPanel address model showDebugPanel =
     let featureDecodeTest = Json.Decode.decodeString Decoders.feature sampleJsonFeature
         productDecodeTest = Json.Decode.decodeString Decoders.product sampleJsonProduct
+        featureEncodeTest =
+            case featureDecodeTest of
+                Ok f ->
+                    (Encoders.feature f)
+                    |> Json.Encode.encode 2
+                    |> Just
+                Err _ ->  Nothing
+        productEncodeTest =
+            case productDecodeTest of
+                Ok p ->
+                    (Encoders.product p)
+                    |> Json.Encode.encode 2
+                    |> Just
+                Err _ -> Nothing
+        quoteEncodeTest =
+            (Encoders.quote sampleQuote)
+                |> Json.Encode.encode 2
     in
         if showDebugPanel
             then
@@ -71,6 +90,9 @@ debugPanel address model showDebugPanel =
                     , div [] [ text (toString model.confirmation) ]
                     , div [] [ text (toString featureDecodeTest) ]
                     , div [] [ text (toString productDecodeTest) ]
+                    , div [] [ text (Maybe.withDefault "Encode did not succeed for feature" featureEncodeTest) ]
+                    , div [] [ text (Maybe.withDefault "Encode did not succeed for product" productEncodeTest) ]
+                    , div [] [ text quoteEncodeTest ]
                     , requestAuthButton address model
                     , requestNotifyButton address model
                     , requestErrorButton address model

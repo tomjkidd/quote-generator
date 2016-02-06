@@ -19,6 +19,7 @@ import StartApp
 --import Date exposing (Date)
 import Effects exposing (Effects, Never)
 import Task
+import Json.Encode
 
 import I18n exposing (i18nLookup)
 import Uuid
@@ -34,6 +35,7 @@ import Login
 import Home
 import ProductCatalog
 import FeatureCatalog
+import Encoders
 
 showDebugPanel : Bool
 showDebugPanel = False
@@ -74,11 +76,6 @@ requestProductCatalog =
 requestProductFeatures : Int -> Effects Action
 requestProductFeatures id =
     Task.succeed (LoadProductFeatures sampleFeatures)
-    |> Effects.task
-
-requestSubmitQuote : Quote -> Effects Action
-requestSubmitQuote quote =
-    Task.succeed (QuoteSubmitted (Uuid.toUuid "33b446c6-8384-4953-b7a0-5ba0eb9d298f"))
     |> Effects.task
 
 {-| -}
@@ -178,7 +175,7 @@ update action model =
             in
                 ({ model | quote = newQuote }, Effects.none)
 
-        SubmitQuote q ->
+        RequestSubmitQuote q ->
             -- TODO: Take request and save
             let requestEffect = requestSubmitQuote q
             in
@@ -292,7 +289,7 @@ quoteSummaryView address model =
             , div [ class "products", show quoteHasProducts ] productViews
             , div [ class "quote-total-cost", show quoteHasProducts ] [ text (formatCurrency totalCost) ]
             , goToProductsButton address model
-            , button [ onClick address (SubmitQuote model.quote), show (model.loggedIn && model.quote.products /= []) ] [ text (i18nLookup I18n.SubmitQuote) ]
+            , button [ onClick address (RequestSubmitQuote model.quote), show (model.loggedIn && model.quote.products /= []) ] [ text (i18nLookup I18n.SubmitQuote) ]
             ]
 
 submittedQuoteView : Address Action -> Model -> Html
@@ -341,6 +338,16 @@ requestShowError str = requestAction (Error str) (Just str)
 
 requestNotify : String -> Effects Action
 requestNotify str = requestAction (Notify str) (Just str)
+
+requestSubmitQuote : Quote -> Effects Action
+requestSubmitQuote quote =
+    let jsonQuote =
+            quote
+                |> Encoders.quote
+                |> Json.Encode.encode 0
+    in
+        requestAction (RequestSubmitQuote quote) (Just jsonQuote)
+
 -- https://groups.google.com/forum/#!msg/elm-discuss/cImJ7DdvKE0/Lskxb7twBAAJ
 
 requestAction : Action -> Maybe String -> Effects Action
@@ -353,6 +360,11 @@ requestAction action str =
             Error msg -> { actionType = Just "Error", data = Just msg }
 
             Notify msg -> { actionType = Just "Notify", data = Just msg }
+
+            RequestSubmitQuote quote ->
+                { actionType = Just "RequestSubmitQuote"
+                , data = str
+                }
 
             _ -> { actionType = Nothing, data = Nothing }
     in
@@ -379,6 +391,14 @@ responsePortAction = Signal.map
         case response.actionType of
             Just "LogOut" -> LogOut
             Just "LogIn" -> LogIn
+            Just "QuoteSubmitted" ->
+                let guid = response.data
+                    action =
+                        case guid of
+                            Nothing -> Error (i18nLookup I18n.QuoteSubmitFail)
+                            Just g -> QuoteSubmitted (Uuid.toUuid g)
+                in
+                    action
             _ -> NoOp )
     responsePort
 

@@ -1,5 +1,6 @@
 module Sample.Data
-    ( sampleProduct
+    ( sampleQuote
+    , sampleProduct
     , sampleProducts
     , sampleFeatures
     , sampleJsonFeature
@@ -9,10 +10,18 @@ module Sample.Data
 
 import Json.Decode
 
-import Model exposing (Product, Feature)
+import Model exposing (Quote, Product, Feature)
 import Decoders
 
-{-| -}
+sampleQuote : Quote
+sampleQuote =
+    { products = []
+    , client = "Test Client"
+    , preparer = Nothing
+    , approved = False
+    , id = Nothing
+    }
+
 sampleProduct : Product
 sampleProduct =
     { features = []

@@ -2,6 +2,7 @@ module Uuid
     ( Uuid
     , toUuid
     , toString
+    , fromUuid
     )
     where
 
@@ -28,3 +29,6 @@ toString id =
     case id of
         Nothing -> ""
         Just (Uuid str) -> str
+
+fromUuid : Uuid -> String
+fromUuid (Uuid str) = str

@@ -64,6 +64,14 @@ function signOut() {
                 break;
             case "Notify":
                 toastr.success(appPortRequest.data);
+                break;
+            case "RequestSubmitQuote":
+                // TODO: Call web service to push quote there
+                app.ports.responsePort.send({
+                    actionType: "QuoteSubmitted",
+                    data: "33b446c6-8384-4953-b7a0-5ba0eb9d298f"
+                });
+                break;
             default:
                 console.log("Ignoring Request: " + appPortRequest)
         }
