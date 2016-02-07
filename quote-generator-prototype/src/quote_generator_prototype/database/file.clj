@@ -31,6 +31,13 @@ This function will create a backup."
        (pr-str)
        (backup-then-spit "products.edn")))
 
+(defn get-products
+  "Get the products (and nested features) for the system."
+  []
+  (->> "products.edn"
+       (slurp)
+       (read-string)))
+
 (defn get-quote
   "TODO: Implement this function to retrieve a quote by uuid"
   []

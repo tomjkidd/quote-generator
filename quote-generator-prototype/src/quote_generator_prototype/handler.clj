@@ -6,7 +6,8 @@
             [ring.middleware.json :as ring-json]
             [ring.util.response :as rr]
             [ring.middleware.anti-forgery :as af]
-            [quote-generator-prototype.database.file :as db]))
+            [quote-generator-prototype.database.file :as db]
+            [quote-generator-prototype.jsend :as jsend]))
 
 (defroutes app-routes
   "The defroutes macro returns a RING handler based on a list of routes, providing the appropriate handler for each request."
@@ -17,11 +18,15 @@
 
   ;; Endpoint to provide a list of products
   (GET "/products" []
-       (rr/response {:data "TODO: Actually implement this!"}))
+       (->> (db/get-products)
+            (jsend/success)
+            (rr/response)))
 
   ;; Endpoint to provide a way to save a submitted quote
   (POST "/quote" [quote]
-        (rr/response {:uuid (db/save-quote quote)}))
+        (->> {:uuid (db/save-quote quote)}
+             (jsend/success)
+             (rr/response)))
 
   ;; This line will serve static requrests out of public directory
   (route/resources "/")
