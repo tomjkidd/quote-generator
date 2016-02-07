@@ -45,10 +45,4 @@ This function will create a backup."
     (spit (str "./quotes/" uuid ".edn") (pr-str edn-quote))
     uuid))
 
-(defn test-save-qoute
-  []
-  (save-quote (json/generate-string {:products []
-                                     :client "Unknown"
-                                     :preparer "tomjkidd@gmail.com"
-                                     :approved false
-                                     :id nil})))
+
