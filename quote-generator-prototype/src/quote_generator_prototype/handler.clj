@@ -23,8 +23,8 @@
             (rr/response)))
 
   ;; Endpoint to provide a way to save a submitted quote
-  (POST "/quote" [quote]
-        (->> {:uuid (db/save-quote quote)}
+  (POST "/quote" {body :body}
+        (->> {:uuid (db/save-quote body)}
              (jsend/success)
              (rr/response)))
 
@@ -37,7 +37,9 @@
 (def app
   "app-routes our router
 wrap-json-response will convert responses to JSON.
+wrap-json-body will convert incoming Content-Type application/json to edn as :body.
 wrap-defaults uses app-routes as a handler and site-defaults as a config."
   (-> app-routes
       (ring-json/wrap-json-response)
+      (ring-json/wrap-json-body {:keywords? true :bigdecimals? true})
       (wrap-defaults site-defaults)))

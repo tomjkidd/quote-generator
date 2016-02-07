@@ -45,10 +45,8 @@ This function will create a backup."
 
 (defn save-quote
   "Save a quote, identified by Uuid"
-  [json-quote]
-  (let [uuid (uuid/v4)
-        edn-quote (json/parse-string json-quote true)]
-    ;; TODO: Quote comes in as JSON, switch to edn.
+  [edn-quote]
+  (let [uuid (uuid/v4)]
     (spit (str "./quotes/" uuid ".edn") (pr-str edn-quote))
     uuid))
 
