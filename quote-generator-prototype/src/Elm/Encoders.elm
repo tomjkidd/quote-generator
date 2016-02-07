@@ -10,7 +10,9 @@ import Json.Encode exposing (..)
 import Model exposing (Feature, Product, Quote)
 import Uuid
 
--- TODO: Is there a better way to handle nested records for JSON encoding?
+-- Is there a better way to handle nested records for JSON encoding?
+-- [No](https://groups.google.com/forum/#!searchin/elm-discuss/json$20encode$20record/elm-discuss/LmtlxeNqsRw/GlYj0m44gLkJ), at least for now there appears to be no way to bypass creating these explicitly.
+-- [Toward Automation](https://github.com/rtfeldman/elm-codify)
 
 withNullDefault : (a -> Value) -> Maybe a -> Value
 withNullDefault fn val =
