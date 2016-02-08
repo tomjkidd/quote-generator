@@ -67,6 +67,7 @@ initialModel =
     , selectedProduct = Nothing
     , quote = initialQuote
     , confirmation = Nothing
+    , antiForgery = Nothing
     }
 
 requestProductCatalog : Effects Action
@@ -231,8 +232,8 @@ update action model =
         HttpRequestAnitForgeryToken ->
             (model, Common.Http.requestAntiForgeryToken)
 
-        UpdateAntiForgeryToken token ->
-            (model, requestNotify (toString token))
+        UpdateAntiForgeryToken af ->
+            ({ model | antiForgery = Just af }, requestNotify (toString af))
 
 removeProductFromQuoteButton : Address Action -> Model -> Int -> Html
 removeProductFromQuoteButton address model index =

@@ -21,6 +21,7 @@ type alias Model =
     , productCatalog : List Product
     , selectedProduct : Maybe Product
     , confirmation : Maybe Uuid.Uuid
+    , antiForgery : Maybe AntiForgery
     --, featureCatalog : List Feature
     --, TODO: Story for i18n (https://en.wikipedia.org/wiki/Internationalization_and_localization)
     }
