@@ -48,4 +48,4 @@ calculateQuoteTotalCost quote =
 {-| Intentionally simple and for US -}
 formatCurrency : Int -> String
 formatCurrency value =
-    "$ " ++ (toString value)
+    "$" ++ (toString value)

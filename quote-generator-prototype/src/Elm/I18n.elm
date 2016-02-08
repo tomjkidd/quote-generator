@@ -48,6 +48,7 @@ englishI18nTranslations =
             ,(ts QuoteSubmittedTitle, "Quote Submitted")
             ,(ts QuoteSubmittedInfo, "The Quote was submitted. Please retain the verification number to identify this Quote in the future.")
             ,(ts ConfirmationNumber, "Confirmation Number:")
+            ,(ts LinkToSample, "Link To Sample")
             ]
 
 type I18nMessage
@@ -80,6 +81,7 @@ type I18nMessage
     | QuoteSubmittedTitle
     | QuoteSubmittedInfo
     | ConfirmationNumber
+    | LinkToSample
 
 i18nLookup : I18nMessage -> String
 i18nLookup key =

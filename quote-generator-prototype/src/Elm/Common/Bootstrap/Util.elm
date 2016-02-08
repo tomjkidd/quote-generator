@@ -15,7 +15,9 @@ panelView address heading body =
     let a = 1
     in
         div
-            [ class "panel panel-default" ]
+            [ class "panel panel-default"
+            , style [ ("margin-bottom", "0px") ]
+            ]
             [ div
                 [ class "panel-heading" ]
                 [ heading ]

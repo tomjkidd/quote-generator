@@ -36,13 +36,65 @@ productDetailView address product =
         totalCost = calculateTotalCost product
         baseFeatures = baseFeaturesView address product
         additionalFeatures = additionalFeaturesView address product
+
+        baseCostView =
+            div
+                [ class "input-group"
+                , style [ ("padding", "5px 0") ]
+                ]
+                [ span
+                    [ class "input-group-addon" ]
+                    [ text (i18nLookup I18n.BaseCost)]
+                , div
+                    [ class "form-control"
+                    , style [ ("display", "inline-block")
+                           , ("font-weight", "600")
+                           ]
+                    ]
+                    [ text (formatCurrency baseCost) ]
+                ]
+
+        totalCostView =
+            div
+                [ class "input-group"
+                , style [ ("padding", "5px 0") ]
+                ]
+                [ span
+                    [ class "input-group-addon" ]
+                    [ text (i18nLookup I18n.TotalCost)]
+                , div
+                    [ class "form-control"
+                    , style [ ("display", "inline-block")
+                           , ("font-weight", "600")
+                           ]
+                    ]
+                    [ text (formatCurrency totalCost) ]
+                ]
     in
         div [] <|
-            [ ProductCatalog.productView address product ] ++
+            [ ProductCatalog.productView False address product ] ++
             [ baseFeatures
-            , div [ class "text-right"] [ text (formatCurrency baseCost)]
+            --, div [ class "text-right"] [ text (formatCurrency baseCost)]
+            , div
+                [ class "row" ]
+                [ div [ class "col-md-9" ] []
+                , div
+                    [ class "col-md-3"
+                    , style [ ("text-align", "right") ]
+                    ]
+                    [ baseCostView ]
+                ]
             , additionalFeatures
-            , div [ class "text-right"] [ text (formatCurrency totalCost) ]
+            --, div [ class "text-right"] [ text (formatCurrency totalCost) ]
+            , div
+                [ class "row" ]
+                [ div [ class "col-md-9" ] []
+                , div
+                    [ class "col-md-3"
+                    , style [ ("text-align", "right") ]
+                    ]
+                    [ totalCostView ]
+                ]
             , div
                 [ class "submit-quote text-right"]
                 [ button [ onClick address (AddProductToQuote product) ] [ text (i18nLookup I18n.AddProductToQuote) ]
