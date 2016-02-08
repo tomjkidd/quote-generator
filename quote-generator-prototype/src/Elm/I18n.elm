@@ -24,7 +24,7 @@ englishI18nTranslations =
             ,(ts HomeTitle, "Test home title")
             ,(ts HomeSummary, "Test home summary")
             ,(ts HomeDescription, "Test home description, long windedness.\n blah blah blah\n more blah blah.")
-            ,(ts NavigateToProductCatalog, "Nav to Products")
+            ,(ts NavigateToProductCatalog, "Products")
             ,(ts GoToProductCatalog, "Go to Products")
             ,(ts NavigateToQuoteSummary, "Quote Summary")
             ,(ts LogoutLabel, "Log Out")
@@ -47,7 +47,7 @@ englishI18nTranslations =
             ,(ts QuoteSubmitFail, "Submitting the Quote resulted in an error.")
             ,(ts QuoteSubmittedTitle, "Quote Submitted")
             ,(ts QuoteSubmittedInfo, "The Quote was submitted. Please retain the verification number to identify this Quote in the future.")
-            ,(ts ConfirmationNumber, "Confirmation Number:")
+            ,(ts ConfirmationNumber, "Confirmation Number")
             ,(ts LinkToSample, "Link To Sample")
             ]
 

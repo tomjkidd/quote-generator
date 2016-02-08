@@ -296,21 +296,30 @@ quoteSummaryView address model =
 
 submittedQuoteView : Address Action -> Model -> Html
 submittedQuoteView address model =
-    div
-        [ class "submitted-quote-view"
-        , show (model.page == SubmittedQuote)
-        ]
+    let
+        confNumberList =
+            ul
+                [ class "list-group" ]
+                [ li
+                    [ class "h4 list-group-item" ]
+                    [ text (i18nLookup I18n.ConfirmationNumber) ]
+                , li
+                    [ class "list-group-item" ]
+                    [ text (Uuid.toString model.confirmation) ]
 
-        [ div [] [ text (i18nLookup I18n.QuoteSubmittedTitle) ]
-        , div [] [ text (i18nLookup I18n.QuoteSubmittedInfo) ]
-        , div
-            []
-            [ text (i18nLookup I18n.ConfirmationNumber)
-            , text (Uuid.toString model.confirmation)
+                ]
+    in
+        div
+            [ class "submitted-quote-view"
+            , show (model.page == SubmittedQuote)
             ]
-        , goToProductsButton address model
-        , logoutButton address model
-        ]
+
+            [ div [ class "h3" ] [ text (i18nLookup I18n.QuoteSubmittedTitle) ]
+            , div [] [ text (i18nLookup I18n.QuoteSubmittedInfo) ]
+            , confNumberList
+            , goToProductsButton address model
+            , logoutButton address model
+            ]
 
 {-| -}
 app : StartApp.App Model
