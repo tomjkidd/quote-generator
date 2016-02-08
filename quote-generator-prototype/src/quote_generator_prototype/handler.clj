@@ -15,7 +15,10 @@
   (GET "/" [] "Hello World")
 
   ;; Endpoint to request antiforgery token, built into RING
-  (GET "/antiforgerytoken" [] (rr/response {:csrf-token af/*anti-forgery-token*}))
+  (GET "/antiforgerytoken" []
+       (->> {:csrf-token af/*anti-forgery-token*}
+            (jsend/success)
+            (rr/response)))
 
   ;; Endpoint to provide a list of products
   (GET "/products" []

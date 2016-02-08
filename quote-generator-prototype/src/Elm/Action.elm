@@ -2,7 +2,7 @@ module Action
     (Action (..))
     where
 
-import Model exposing (Page, Feature, Product, Quote)
+import Model exposing (Page, Feature, Product, Quote, AntiForgery)
 import Uuid
 
 {-| -}
@@ -30,3 +30,5 @@ type Action
     | Notify String -- Toastr with notification for user
     | Error String -- Toastr with error for user
     | RequestHttpProducts -- Testing
+    | HttpRequestAnitForgeryToken
+    | UpdateAntiForgeryToken AntiForgery

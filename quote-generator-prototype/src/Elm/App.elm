@@ -20,15 +20,14 @@ import StartApp
 import Effects exposing (Effects, Never)
 import Task
 import Json.Encode
-import Http exposing (RawError(..))
 
 import I18n exposing (i18nLookup)
 import Uuid
+import Common.Http
 import Common.Buttons exposing (goToProductsButton, logoutButton)
 import Common.Util exposing (show, removeAt, formatCurrency,
     calculateBaseCost, calculateTotalCost, calculateQuoteTotalCost)
 import Common.Debug
-import Common.JSend exposing (JSend(..))
 import Sample.Data exposing (sampleFeatures, sampleProduct, sampleProducts)
 
 import Model exposing (..)
@@ -38,7 +37,6 @@ import Home
 import ProductCatalog
 import FeatureCatalog
 import Encoders
-import Decoders
 
 showDebugPanel : Bool
 showDebugPanel = False
@@ -97,7 +95,7 @@ update action model =
                     |> Task.succeed
                     |> Effects.task
             in
-                ({ model | loggedIn = True}, Effects.batch [navEffect, requestProductCatalog])
+                ({ model | loggedIn = True}, Effects.batch [navEffect, requestProductCatalog, Common.Http.requestAntiForgeryToken])
 
         LogOut -> (initialModel, Effects.none)
 
@@ -228,7 +226,13 @@ update action model =
             ({ model | confirmation = Nothing }, Effects.none)
 
         RequestHttpProducts ->
-            (model, requestHttpProducts)
+            (model, Common.Http.requestProducts)
+
+        HttpRequestAnitForgeryToken ->
+            (model, Common.Http.requestAntiForgeryToken)
+
+        UpdateAntiForgeryToken token ->
+            (model, requestNotify (toString token))
 
 removeProductFromQuoteButton : Address Action -> Model -> Int -> Html
 removeProductFromQuoteButton address model index =
@@ -378,22 +382,6 @@ requestAction action str =
             |> Task.map (\t -> NoOp)
             |> Effects.task
 
-requestHttpProducts : Effects Action
-requestHttpProducts =
-    let url = "products"
-    
-        request : Task.Task Http.Error (JSend (List Product))
-        request = Http.get (Decoders.jsend Decoders.products) url
-
-        response = Task.andThen request (\(JSend jsend) ->
-            Task.succeed (LoadProducts jsend.data))
-
-        wrapped =
-            Task.onError response (\err -> Task.succeed (Error (toString err)))
-
-    in
-        wrapped
-            |> Effects.task
 {-| -}
 type alias AppPortRequest =
     { actionType : Maybe String

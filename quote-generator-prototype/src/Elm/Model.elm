@@ -5,6 +5,7 @@ module Model
     , Feature
     , Product
     , Quote
+    , AntiForgery
     )
     where
 
@@ -71,4 +72,9 @@ type alias Quote =
     , preparer : Maybe String
     , approved : Bool
     , id : Maybe Uuid.Uuid
+    }
+
+{-| Needed to POST to the server -}
+type alias AntiForgery =
+    { csrfToken : String
     }
