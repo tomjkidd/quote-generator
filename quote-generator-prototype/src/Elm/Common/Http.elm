@@ -1,5 +1,5 @@
 module Common.Http
-    ( requestProducts
+    ( requestProductCatalog
     , requestAntiForgeryToken
     )
     where
@@ -13,8 +13,8 @@ import Model exposing (Product, AntiForgery)
 import Common.JSend exposing (JSend(..))
 import Decoders
 
-requestProducts : Effects Action
-requestProducts =
+requestProductCatalog : Effects Action
+requestProductCatalog =
     let url = "products"
 
         request : Task.Task Http.Error (JSend (List Product))

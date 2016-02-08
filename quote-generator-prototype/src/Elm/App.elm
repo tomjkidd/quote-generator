@@ -28,7 +28,6 @@ import Common.Buttons exposing (goToProductsButton, logoutButton)
 import Common.Util exposing (show, removeAt, formatCurrency,
     calculateBaseCost, calculateTotalCost, calculateQuoteTotalCost)
 import Common.Debug
-import Sample.Data exposing (sampleFeatures, sampleProduct, sampleProducts)
 
 import Model exposing (..)
 import Action exposing (Action (..))
@@ -70,16 +69,6 @@ initialModel =
     , antiForgery = Nothing
     }
 
-requestProductCatalog : Effects Action
-requestProductCatalog =
-    Task.succeed (LoadProducts sampleProducts)
-    |> Effects.task
-
-requestProductFeatures : Int -> Effects Action
-requestProductFeatures id =
-    Task.succeed (LoadProductFeatures sampleFeatures)
-    |> Effects.task
-
 {-| -}
 update : Action -> Model -> (Model, Effects Action)
 update action model =
@@ -96,7 +85,11 @@ update action model =
                     |> Task.succeed
                     |> Effects.task
             in
-                ({ model | loggedIn = True}, Effects.batch [navEffect, requestProductCatalog, Common.Http.requestAntiForgeryToken])
+                ({ model | loggedIn = True}
+                , Effects.batch
+                    [ navEffect
+                    , Common.Http.requestProductCatalog
+                    , Common.Http.requestAntiForgeryToken])
 
         LogOut -> (initialModel, Effects.none)
 
@@ -115,7 +108,8 @@ update action model =
                     True -> ({ model | page = page, previousPage = Just currentPage }, confirmationEffect)
                     False -> ({ model | page = Login, previousPage = Nothing }, confirmationEffect)
 
-        RequestProductCatalog -> (model, requestProductCatalog)
+        HttpRequestProductCatalog ->
+            (model, Common.Http.requestProductCatalog)
 
         LoadProducts ps -> ({ model | productCatalog = ps }, Effects.none)
 
@@ -131,13 +125,13 @@ update action model =
             in
                 ({ model | selectedProduct = Just p }, Effects.batch [navEffect, requestEffect ])
 
-        LoadProductFeatures fs ->
+        {-LoadProductFeatures fs ->
             case model.selectedProduct of
                 Nothing -> (model, Effects.none)
                 Just p ->
                     let newProduct = { p | features = fs }
                     in
-                        ({ model | selectedProduct = Just newProduct }, Effects.none)
+                        ({ model | selectedProduct = Just newProduct }, Effects.none)-}
 
         UpdateQuantity id qty ->
             let updateQty f =
@@ -225,9 +219,6 @@ update action model =
 
         ClearConfirmation ->
             ({ model | confirmation = Nothing }, Effects.none)
-
-        HttpRequestProducts ->
-            (model, Common.Http.requestProducts)
 
         HttpRequestAnitForgeryToken ->
             (model, Common.Http.requestAntiForgeryToken)

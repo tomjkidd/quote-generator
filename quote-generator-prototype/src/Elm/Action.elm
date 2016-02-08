@@ -13,10 +13,10 @@ type Action
     | RequestLogOut -- Request LogOut externally for Google auth
     | LogIn -- On valid user
     | LogOut -- Allow user to log out
-    | RequestProductCatalog -- Get the list of Products as an Effect
+    | HttpRequestProductCatalog -- Make http request for products in catalog
     | LoadProducts (List Product) -- Update productCatalog with available Products
     | SelectProduct Product -- When product is chosen from list of products, candidate for Quote
-    | LoadProductFeatures (List Feature) -- Loads features for product
+    --| LoadProductFeatures (List Feature) -- Loads features for product, may not be needed.
     --| RequestFeatureCatalog Int -- Get the list of Features for a given Product
     | NavigateToPage Page -- Used to navigate the App
     --| UpdateFeature Feature
@@ -29,6 +29,5 @@ type Action
     | ClearConfirmation
     | Notify String -- Toastr with notification for user
     | Error String -- Toastr with error for user
-    | HttpRequestProducts -- Testing
-    | HttpRequestAnitForgeryToken
-    | UpdateAntiForgeryToken AntiForgery
+    | HttpRequestAnitForgeryToken -- Make http request for anti forgery info
+    | UpdateAntiForgeryToken AntiForgery -- Capture the anti forgery token
