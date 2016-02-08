@@ -8,7 +8,8 @@
                  [cheshire "5.5.0"]
                  [ring/ring-json "0.4.0"]
                  [clj-time "0.11.0"]
-                 [danlentz/clj-uuid "0.1.6"]]
+                 [danlentz/clj-uuid "0.1.6"]
+                 [camel-snake-kebab "0.3.2"]]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler quote-generator-prototype.handler/app}
   :profiles

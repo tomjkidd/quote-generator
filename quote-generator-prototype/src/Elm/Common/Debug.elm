@@ -33,6 +33,19 @@ requestAuthButton address model =
             , text "Request Auth"
             ]
 
+requestProductsButton : Address Action -> Model -> Html
+requestProductsButton address model =
+    let btnClass =
+      case model.loggedIn of
+          True -> "btn btn-default btn-xs"
+          False -> ""
+    in
+        button
+            [ class btnClass, onClick address RequestHttpProducts, show model.loggedIn ]
+            [ i [class "fa fa-cog", style [ ("padding-right", "5px") ]] []
+            , text "Request Products"
+            ]
+
 requestErrorButton : Address Action -> Model -> Html
 requestErrorButton address model =
     let btnClass =
@@ -94,6 +107,7 @@ debugPanel address model showDebugPanel =
                     , div [] [ text (Maybe.withDefault "Encode did not succeed for product" productEncodeTest) ]
                     , div [] [ text quoteEncodeTest ]
                     , requestAuthButton address model
+                    , requestProductsButton address model
                     , requestNotifyButton address model
                     , requestErrorButton address model
                     ]

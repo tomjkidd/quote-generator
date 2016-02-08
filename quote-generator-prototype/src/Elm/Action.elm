@@ -29,3 +29,4 @@ type Action
     | ClearConfirmation
     | Notify String -- Toastr with notification for user
     | Error String -- Toastr with error for user
+    | RequestHttpProducts -- Testing

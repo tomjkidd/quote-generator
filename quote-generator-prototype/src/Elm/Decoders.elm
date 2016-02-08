@@ -1,13 +1,15 @@
 module Decoders
     ( feature
     , product
+    , products
+    , jsend
     )
     where
 
 import Json.Decode as Json exposing ((:=))
 
 import Model exposing (Feature, Product)
-
+import Common.JSend exposing (JSend (..))
 -- http://www.troikatech.com/blog/2015/08/17/decoding-larger-json-objects-in-elm
 
 apply : Json.Decoder (a -> b) -> Json.Decoder a -> Json.Decoder b
@@ -35,3 +37,13 @@ product =
         `apply` (Json.maybe ("note" := Json.string))
         `apply` (Json.maybe ("linkToSample" := Json.string))
         `apply` (Json.maybe ("quantity" := Json.int))
+
+products : Json.Decoder (List Product)
+products =
+    Json.list product
+
+jsend : Json.Decoder a -> Json.Decoder (JSend a)
+jsend decoder =
+    Json.object2 (\s d -> JSend { status = s, data = d })
+        ("status" := Json.string)
+        ("data" := decoder)
