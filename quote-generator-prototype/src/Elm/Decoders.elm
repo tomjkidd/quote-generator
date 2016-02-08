@@ -4,12 +4,13 @@ module Decoders
     , products
     , jsend
     , antiForgery
+    , submittedQuote
     )
     where
 
 import Json.Decode as Json exposing ((:=))
 
-import Model exposing (Feature, Product, AntiForgery)
+import Model exposing (Feature, Product, Quote, AntiForgery, SubmittedQuoteResponse)
 import Common.JSend exposing (JSend (..))
 -- http://www.troikatech.com/blog/2015/08/17/decoding-larger-json-objects-in-elm
 
@@ -53,3 +54,8 @@ antiForgery : Json.Decoder AntiForgery
 antiForgery =
     Json.object1 AntiForgery
         ("csrfToken" := Json.string)
+
+submittedQuote : Json.Decoder SubmittedQuoteResponse
+submittedQuote =
+    Json.object1 SubmittedQuoteResponse
+        ("uuid" := Json.string)

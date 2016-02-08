@@ -24,7 +24,7 @@ type Action
     | UpdateQuantity Int Int -- Id Quantity
     | AddProductToQuote Product
     | RemoveProductFromQuote Int -- Index into Quote.products
-    | RequestSubmitQuote Quote
+    | HttpRequestSubmitQuote Quote -- Make http request to save current quote
     | QuoteSubmitted (Maybe Uuid.Uuid) -- Perhaps notify user quote was submitted
     | ClearConfirmation
     | Notify String -- Toastr with notification for user

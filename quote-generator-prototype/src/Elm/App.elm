@@ -19,7 +19,6 @@ import StartApp
 --import Date exposing (Date)
 import Effects exposing (Effects, Never)
 import Task
-import Json.Encode
 
 import I18n exposing (i18nLookup)
 import Uuid
@@ -35,7 +34,6 @@ import Login
 import Home
 import ProductCatalog
 import FeatureCatalog
-import Encoders
 
 showDebugPanel : Bool
 showDebugPanel = False
@@ -171,11 +169,13 @@ update action model =
             in
                 ({ model | quote = newQuote }, Effects.none)
 
-        RequestSubmitQuote q ->
-            -- TODO: Take request and save
-            let requestEffect = requestSubmitQuote q
-            in
-                (model, requestEffect)
+
+        HttpRequestSubmitQuote q ->
+            case model.antiForgery of
+                Nothing ->
+                    (model, Effects.none)
+                Just af ->
+                    (model, Common.Http.requestSubmitQuote q af)
 
         QuoteSubmitted uuid ->
             let
@@ -291,7 +291,7 @@ quoteSummaryView address model =
             , div [ class "products", show quoteHasProducts ] productViews
             , div [ class "quote-total-cost", show quoteHasProducts ] [ text (formatCurrency totalCost) ]
             , goToProductsButton address model
-            , button [ onClick address (RequestSubmitQuote model.quote), show (model.loggedIn && model.quote.products /= []) ] [ text (i18nLookup I18n.SubmitQuote) ]
+            , button [ onClick address (HttpRequestSubmitQuote model.quote), show (model.loggedIn && model.quote.products /= []) ] [ text (i18nLookup I18n.SubmitQuote) ]
             ]
 
 submittedQuoteView : Address Action -> Model -> Html
@@ -341,15 +341,6 @@ requestShowError str = requestAction (Error str) (Just str)
 requestNotify : String -> Effects Action
 requestNotify str = requestAction (Notify str) (Just str)
 
-requestSubmitQuote : Quote -> Effects Action
-requestSubmitQuote quote =
-    let jsonQuote =
-            quote
-                |> Encoders.quote
-                |> Json.Encode.encode 0
-    in
-        requestAction (RequestSubmitQuote quote) (Just jsonQuote)
-
 -- https://groups.google.com/forum/#!msg/elm-discuss/cImJ7DdvKE0/Lskxb7twBAAJ
 
 requestAction : Action -> Maybe String -> Effects Action
@@ -362,11 +353,6 @@ requestAction action str =
             Error msg -> { actionType = Just "Error", data = Just msg }
 
             Notify msg -> { actionType = Just "Notify", data = Just msg }
-
-            RequestSubmitQuote quote ->
-                { actionType = Just "RequestSubmitQuote"
-                , data = str
-                }
 
             _ -> { actionType = Nothing, data = Nothing }
     in

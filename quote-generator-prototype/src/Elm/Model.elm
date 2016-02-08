@@ -6,6 +6,7 @@ module Model
     , Product
     , Quote
     , AntiForgery
+    , SubmittedQuoteResponse
     )
     where
 
@@ -67,15 +68,19 @@ type alias Product =
 
 {-| Represents a Quote for a set of Products, used by a client to consider cost of services. -}
 type alias Quote =
-    { products : List Product
+    { id : Maybe Uuid.Uuid
+    , products : List Product
     , client : String
     --, date : Date
     , preparer : Maybe String
     , approved : Bool
-    , id : Maybe Uuid.Uuid
     }
 
 {-| Needed to POST to the server -}
 type alias AntiForgery =
     { csrfToken : String
+    }
+
+type alias SubmittedQuoteResponse =
+    { uuid : String
     }
