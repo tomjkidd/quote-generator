@@ -41,7 +41,7 @@ requestProductsButton address model =
           False -> ""
     in
         button
-            [ class btnClass, onClick address RequestHttpProducts, show model.loggedIn ]
+            [ class btnClass, onClick address HttpRequestProducts, show model.loggedIn ]
             [ i [class "fa fa-cog", style [ ("padding-right", "5px") ]] []
             , text "Request Products"
             ]

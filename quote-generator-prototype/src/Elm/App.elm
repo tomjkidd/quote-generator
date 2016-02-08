@@ -226,7 +226,7 @@ update action model =
         ClearConfirmation ->
             ({ model | confirmation = Nothing }, Effects.none)
 
-        RequestHttpProducts ->
+        HttpRequestProducts ->
             (model, Common.Http.requestProducts)
 
         HttpRequestAnitForgeryToken ->
