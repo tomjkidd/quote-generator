@@ -1,10 +1,12 @@
 module Common.Buttons
     ( goToProductsButton
     , logoutButton
+    , removeProductFromQuoteButton
     )
     where
 
 import Html exposing (..)
+import Html.Attributes exposing (..) 
 import Html.Events exposing (..)
 import Signal exposing (Address)
 
@@ -30,3 +32,13 @@ logoutButton address model =
         , show model.loggedIn
         ]
         [ text (i18nLookup I18n.LogoutLabel) ]
+
+removeProductFromQuoteButton : Address Action -> Model -> Int -> Html
+removeProductFromQuoteButton address model index =
+    button
+        [ onClick address (RemoveProductFromQuote index)
+        , show model.loggedIn
+        ]
+        [ i [class "fa fa-close", style [ ("padding-right", "5px") ]] []
+        , text (i18nLookup I18n.RemoveProductFromQuote)
+        ]

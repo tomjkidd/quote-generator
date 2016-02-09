@@ -34,6 +34,7 @@ import Login
 import Home
 import ProductCatalog
 import FeatureCatalog
+import QuoteSummary
 
 showDebugPanel : Bool
 showDebugPanel = False
@@ -226,16 +227,6 @@ update action model =
         UpdateAntiForgeryToken af ->
             ({ model | antiForgery = Just af }, requestNotify (toString af))
 
-removeProductFromQuoteButton : Address Action -> Model -> Int -> Html
-removeProductFromQuoteButton address model index =
-    button
-        [ onClick address (RemoveProductFromQuote index)
-        , show model.loggedIn
-        ]
-        [ i [class "fa fa-close", style [ ("padding-right", "5px") ]] []
-        , text (i18nLookup I18n.RemoveProductFromQuote)
-        ]
-
 {-| -}
 view : Address Action -> Model -> Html
 view address model =
@@ -248,7 +239,7 @@ view address model =
             , Home.view address model
             , ProductCatalog.view address model
             , FeatureCatalog.view address model
-            , quoteSummaryView address model
+            , QuoteSummary.view address model
             , submittedQuoteView address model
             ]
         ]
@@ -261,38 +252,6 @@ headerView address model =
         , button [ onClick address (NavigateToPage QuoteSummary), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToQuoteSummary) ]
         , logoutButton address model
         ]
-
-quoteSummaryProductView : Address Action -> Model -> Int -> Product -> Html
-quoteSummaryProductView address model index product =
-    let totalCost = calculateTotalCost product
-    in
-        div
-            []
-            [ div [] [ text product.title ]
-            , div [] [ text (formatCurrency totalCost) ]
-            , removeProductFromQuoteButton address model index
-            ]
-
-
-quoteSummaryView : Address Action -> Model -> Html
-quoteSummaryView address model =
-    let quoteHasProducts = model.quote.products /= []
-        totalCost = calculateQuoteTotalCost model.quote
-        productViews = List.indexedMap (quoteSummaryProductView address model) model.quote.products
-    in
-        div
-            [ class "quote-summary-view"
-            , show (model.page == QuoteSummary)
-            ]
-
-            [ div
-                [ hidden quoteHasProducts]
-                [ div [] [ text (i18nLookup I18n.NoProductsInQuote) ] ]
-            , div [ class "products", show quoteHasProducts ] productViews
-            , div [ class "quote-total-cost", show quoteHasProducts ] [ text (formatCurrency totalCost) ]
-            , goToProductsButton address model
-            , button [ onClick address (HttpRequestSubmitQuote model.quote), show (model.loggedIn && model.quote.products /= []) ] [ text (i18nLookup I18n.SubmitQuote) ]
-            ]
 
 submittedQuoteView : Address Action -> Model -> Html
 submittedQuoteView address model =

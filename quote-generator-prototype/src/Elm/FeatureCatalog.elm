@@ -140,7 +140,9 @@ baseFeaturesView address product =
         headerRow = baseFeaturesHeaderView address product
         bodyRows = baseFeaturesBodyView address product
 
-        body = tableView address headerRow bodyRows
+        body = div
+            [ class "table-responsive" ]
+            [ tableView address headerRow bodyRows ]
     in
         panelView address heading body
 
@@ -203,6 +205,9 @@ additionalFeaturesView address product =
         headerRow = additionalFeaturesHeaderView address product
         bodyRows = additionalFeaturesBodyView address product
 
-        body = tableView address headerRow bodyRows
+        body =
+            div
+                [ class "table-responsive" ]
+                [ tableView address headerRow bodyRows ]
     in
         panelView address heading body

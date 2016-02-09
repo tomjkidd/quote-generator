@@ -30,7 +30,7 @@ panelView address heading body =
 tableView : Address Action -> Html -> List Html -> Html
 tableView address headerRow bodyRows =
     table
-        [ class "table table-striped" ]
+        [ class "table table-condensed table-striped" ]
         [ thead [] [ headerRow ]
         , tbody [] bodyRows
         ]
