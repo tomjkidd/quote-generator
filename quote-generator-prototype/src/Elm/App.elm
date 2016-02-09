@@ -154,7 +154,7 @@ update action model =
         AddProductToQuote product ->
             let
                 oldQuote = model.quote
-                newQuote = { oldQuote | products = oldQuote.products ++ [product] }
+                newQuote = { oldQuote | products = oldQuote.products ++ [ { product | quantity = Just 1 } ] }
                 navEffect =
                     (NavigateToPage QuoteSummary)
                         |> Task.succeed

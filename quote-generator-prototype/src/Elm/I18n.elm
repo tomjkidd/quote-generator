@@ -27,6 +27,7 @@ englishI18nTranslations =
             ,(ts NavigateToProductCatalog, "Products")
             ,(ts GoToProductCatalog, "Go to Products")
             ,(ts NavigateToQuoteSummary, "Quote Summary")
+            ,(ts QuoteSummary, "Quote Summary")
             ,(ts LogoutLabel, "Log Out")
             ,(ts ProductCatalogTitle, "Products")
             ,(ts FeatureCatalogTitle, "Features")
@@ -35,10 +36,12 @@ englishI18nTranslations =
             ,(ts Feature, "Feature")
             ,(ts Description, "Description")
             ,(ts Type, "Type")
-            ,(ts Cost, "Unit Cost")
+            ,(ts Cost, "Cost")
+            ,(ts UnitCost, "Unit Cost")
             ,(ts Quantity, "Quantity")
             ,(ts BaseCost, "Base Cost")
             ,(ts TotalCost, "Total Cost")
+            ,(ts QuoteTotalCost, "Quote Total Cost")
             ,(ts QuoteNotes, "Quote Notes")
             ,(ts AddProductToQuote, "Add to Quote")
             ,(ts RemoveProductFromQuote, "Remove from Quote")
@@ -59,6 +62,7 @@ type I18nMessage
     | HomeDescription
     | NavigateToProductCatalog
     | GoToProductCatalog
+    | QuoteSummary
     | NavigateToQuoteSummary
     | LogoutLabel
     | ProductCatalogTitle
@@ -69,9 +73,11 @@ type I18nMessage
     | Description
     | Type
     | Cost
+    | UnitCost
     | Quantity
     | BaseCost
     | TotalCost
+    | QuoteTotalCost
     | QuoteNotes
     | AddProductToQuote
     | RemoveProductFromQuote

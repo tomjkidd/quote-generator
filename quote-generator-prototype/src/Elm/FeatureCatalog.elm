@@ -109,7 +109,7 @@ baseFeaturesHeaderView address product =
             [ th [] [ text (i18nLookup I18n.Feature) ]
             , th [] [ text (i18nLookup I18n.Description) ]
             , th [] [ text (i18nLookup I18n.Type) ]
-            , th [ class "text-center" ] [ text (i18nLookup I18n.Cost) ]
+            , th [ class "text-center" ] [ text (i18nLookup I18n.UnitCost) ]
             , th [ class "text-center" ] [ text (i18nLookup I18n.Quantity) ]
             ]
     in
@@ -154,7 +154,7 @@ additionalFeaturesHeaderView address product =
             [ th [] [ text (i18nLookup I18n.Feature) ]
             , th [] [ text (i18nLookup I18n.Description) ]
             , th [] [ text (i18nLookup I18n.Type) ]
-            , th [ class "text-center" ] [ text (i18nLookup I18n.Cost) ]
+            , th [ class "text-center" ] [ text (i18nLookup I18n.UnitCost) ]
             , th [ class "text-center" ] [ text (i18nLookup I18n.Quantity) ]
             ]
     in
