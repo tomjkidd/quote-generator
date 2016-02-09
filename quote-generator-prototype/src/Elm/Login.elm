@@ -15,7 +15,7 @@ import Theme exposing (themeLookup)
 view : Address Action -> Model -> Html
 view address model =
     div
-        [ class "login-view", hidden model.loggedIn, style [ ("width", "500px"),  ("margin", "0 auto")] ]
+        [ class "login-view", hidden model.loggedIn, style [ ("max-width", "500px"),  ("margin", "0 auto")] ]
         [ div
             [ class "login-background"
             , style
@@ -23,7 +23,7 @@ view address model =
                 , ("color", themeLookup Theme.LoginViewTextColor)
                 , ("display", "flex")
                 , ("flex-direction", "row")
-
+                , ("flex-wrap", "wrap")
                 ]
             ]
             [ img [ src "images/login-logo.png", width 100, height 100 ] []

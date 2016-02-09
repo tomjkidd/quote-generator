@@ -8,6 +8,7 @@ module Common.Util
 
 import Html exposing (Attribute)
 import Html.Attributes exposing (hidden)
+import String exposing (..)
 
 import Model exposing (Product, Quote)
 
@@ -48,4 +49,19 @@ calculateQuoteTotalCost quote =
 {-| Intentionally simple and for US -}
 formatCurrency : Int -> String
 formatCurrency value =
-    "$" ++ (toString value)
+    "$" ++ (formatCurrencyBase value)
+
+formatCurrencyBase : Int -> String
+formatCurrencyBase n =
+  String.join "," (splitFromRight (toString n) [])
+
+splitFromRight : String -> List String -> List String
+splitFromRight str acc =
+    if (isEmpty str)
+    then acc
+    else
+        let cur = right 3 str
+            remaining = dropRight 3 str
+            newAcc = cur :: acc
+        in
+            splitFromRight remaining newAcc
