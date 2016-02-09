@@ -46,7 +46,7 @@ englishI18nTranslations =
             ,(ts SubmitQuote, "Submit Quote")
             ,(ts QuoteSubmitFail, "Submitting the Quote resulted in an error.")
             ,(ts QuoteSubmittedTitle, "Quote Submitted")
-            ,(ts QuoteSubmittedInfo, "The Quote was submitted. Please retain the verification number to identify this Quote in the future.")
+            ,(ts QuoteSubmittedInfo, "The Quote was submitted. Please retain the confirmation number to identify this Quote in the future.")
             ,(ts ConfirmationNumber, "Confirmation Number")
             ,(ts LinkToSample, "Link To Sample")
             ]

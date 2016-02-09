@@ -35,6 +35,7 @@ import Home
 import ProductCatalog
 import FeatureCatalog
 import QuoteSummary
+import SubmittedQuote
 
 showDebugPanel : Bool
 showDebugPanel = False
@@ -240,7 +241,7 @@ view address model =
             , ProductCatalog.view address model
             , FeatureCatalog.view address model
             , QuoteSummary.view address model
-            , submittedQuoteView address model
+            , SubmittedQuote.view address model
             ]
         ]
 
@@ -252,33 +253,6 @@ headerView address model =
         , button [ onClick address (NavigateToPage QuoteSummary), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToQuoteSummary) ]
         , logoutButton address model
         ]
-
-submittedQuoteView : Address Action -> Model -> Html
-submittedQuoteView address model =
-    let
-        confNumberList =
-            ul
-                [ class "list-group" ]
-                [ li
-                    [ class "h4 list-group-item" ]
-                    [ text (i18nLookup I18n.ConfirmationNumber) ]
-                , li
-                    [ class "list-group-item" ]
-                    [ text (Uuid.toString model.confirmation) ]
-
-                ]
-    in
-        div
-            [ class "submitted-quote-view"
-            , show (model.page == SubmittedQuote)
-            ]
-
-            [ div [ class "h3" ] [ text (i18nLookup I18n.QuoteSubmittedTitle) ]
-            , div [] [ text (i18nLookup I18n.QuoteSubmittedInfo) ]
-            , confNumberList
-            , goToProductsButton address model
-            , logoutButton address model
-            ]
 
 {-| -}
 app : StartApp.App Model
