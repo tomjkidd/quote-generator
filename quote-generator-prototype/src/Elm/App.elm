@@ -1,5 +1,5 @@
 module App
-    (initialModel, update, view, main, app, requestAuth, requestLogOut, AppPortRequest, AppPortResponse, responsePortAction, requestMailbox)
+    (initialModel, update, view, main, app, requestConsoleLog, requestLogOut, AppPortRequest, AppPortResponse, responsePortAction, requestMailbox)
     where
 
 {-| Eventually this will explain what is going on.
@@ -7,7 +7,7 @@ Everything is being thrown together for now to experiment with getting the proto
 
 @docs initialModel, update, view, main, app
 
-@docs requestAuth, requestLogOut, AppPortRequest, AppPortResponse, responsePortAction, requestMailbox
+@docs requestConsoleLog, requestLogOut, AppPortRequest, AppPortResponse, responsePortAction, requestMailbox
 
 @docs sampleProduct
 -}
@@ -75,7 +75,7 @@ update action model =
     case action of
         NoOp -> (model, Effects.none)
 
-        RequestAuth -> (model, requestAuth)
+        RequestConsoleLog msg -> (model, requestConsoleLog msg)
 
         RequestLogOut -> (model, requestLogOut)
 
@@ -226,7 +226,7 @@ update action model =
             (model, Common.Http.requestAntiForgeryToken)
 
         UpdateAntiForgeryToken af ->
-            ({ model | antiForgery = Just af }, requestNotify (toString af))
+            ({ model | antiForgery = Just af }, requestConsoleLog (toString af))
 
 {-| -}
 view : Address Action -> Model -> Html
@@ -274,8 +274,8 @@ main =
   app.html
 
 {-| -}
-requestAuth : Effects Action
-requestAuth = requestAction RequestAuth Nothing
+requestConsoleLog : String -> Effects Action
+requestConsoleLog str = requestAction (RequestConsoleLog str) Nothing
 
 {-| -}
 requestLogOut : Effects Action
@@ -293,7 +293,7 @@ requestAction : Action -> Maybe String -> Effects Action
 requestAction action str =
     let record =
         case action of
-            RequestAuth -> { actionType = Just (toString action), data = Nothing }
+            RequestConsoleLog msg -> { actionType = Just "RequestConsoleLog", data = Just msg }
             LogOut -> { actionType = Just (toString action), data = Nothing }
 
             Error msg -> { actionType = Just "Error", data = Just msg }

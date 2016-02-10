@@ -8,7 +8,7 @@ import Uuid
 {-| -}
 type Action
     = NoOp
-    | RequestAuth -- Request info externally for Google auth
+    | RequestConsoleLog String -- Request log to browser console
     -- | Auth String -- Perform auth check on user
     | RequestLogOut -- Request LogOut externally for Google auth
     | LogIn -- On valid user

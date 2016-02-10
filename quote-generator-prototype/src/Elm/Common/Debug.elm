@@ -20,15 +20,15 @@ import Encoders
 
 -- TODO: Create a simple wrapper for making these buttons.
 
-requestAuthButton : Address Action -> Model -> Html
-requestAuthButton address model =
+requestConsoleLogButton : Address Action -> Model -> Html
+requestConsoleLogButton address model =
     let btnClass =
       case model.loggedIn of
           True -> "btn btn-default btn-xs"
           False -> ""
     in
         button
-            [ class btnClass, onClick address RequestAuth, show model.loggedIn ]
+            [ class btnClass, onClick address (RequestConsoleLog "Test Console Log"), show model.loggedIn ]
             [ i [class "fa fa-cog", style [ ("padding-right", "5px") ]] []
             , text "Request Auth"
             ]
@@ -106,7 +106,7 @@ debugPanel address model showDebugPanel =
                     , div [] [ text (Maybe.withDefault "Encode did not succeed for feature" featureEncodeTest) ]
                     , div [] [ text (Maybe.withDefault "Encode did not succeed for product" productEncodeTest) ]
                     , div [] [ text quoteEncodeTest ]
-                    , requestAuthButton address model
+                    , requestConsoleLogButton address model
                     , requestProductsButton address model
                     , requestNotifyButton address model
                     , requestErrorButton address model

@@ -51,8 +51,6 @@ function signOut() {
     app.ports.requestPort.subscribe(appPortRequestHandler);
 
     function appPortRequestHandler(appPortRequest) {
-        console.log(appPortRequest);
-
         switch (appPortRequest.actionType) {
             case "LogOut":
                 signOut();
@@ -64,6 +62,9 @@ function signOut() {
                 break;
             case "Notify":
                 toastr.success(appPortRequest.data);
+                break;
+            case "RequestConsoleLog":
+                console.log(appPortRequest.data);
                 break;
             default:
                 console.log("Ignoring Request: " + appPortRequest)
