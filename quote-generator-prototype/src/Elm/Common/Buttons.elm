@@ -2,11 +2,12 @@ module Common.Buttons
     ( goToProductsButton
     , logoutButton
     , removeProductFromQuoteButton
+    , helpButton
     )
     where
 
 import Html exposing (..)
-import Html.Attributes exposing (..) 
+import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Signal exposing (Address)
 
@@ -41,4 +42,15 @@ removeProductFromQuoteButton address model index =
         ]
         [ i [class "fa fa-close", style [ ("padding-right", "5px") ]] []
         , text (i18nLookup I18n.RemoveProductFromQuote)
+        ]
+
+helpButton : Address Action -> Model -> Html
+helpButton address model =
+    button
+        [ onClick address (NavigateToPage Home)
+        , show model.loggedIn
+        , class ""
+        ]
+        [ i [class "fa fa-question-circle", style [ ("padding-right", "5px") ]] []
+        , text (i18nLookup I18n.Help)
         ]

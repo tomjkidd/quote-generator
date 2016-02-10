@@ -23,7 +23,7 @@ import Task
 import I18n exposing (i18nLookup)
 import Uuid
 import Common.Http
-import Common.Buttons exposing (goToProductsButton, logoutButton)
+import Common.Buttons exposing (goToProductsButton, logoutButton, helpButton)
 import Common.Util exposing (show, removeAt, formatCurrency,
     calculateBaseCost, calculateTotalCost, calculateQuoteTotalCost)
 import Common.Debug
@@ -248,10 +248,14 @@ view address model =
 headerView : Address Action -> Model -> Html
 headerView address model =
     div [ show (model.loggedIn) ]
-        [ img [ src "images/header-logo.png", class "header-logo", height 50, width 300 ] []
+        [ img [ src "images/header-logo.png", class "header-logo", height 50, width 300
+        , style [("padding", "5px"), ("cursor", "pointer")]
+        , onClick address (NavigateToPage Home)
+        ] []
         , button [ onClick address (NavigateToPage ProductCatalog), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToProductCatalog) ]
         , button [ onClick address (NavigateToPage QuoteSummary), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToQuoteSummary) ]
         , logoutButton address model
+        , helpButton address model
         ]
 
 {-| -}

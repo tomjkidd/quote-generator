@@ -26,7 +26,11 @@ view address model =
                 , ("flex-wrap", "wrap")
                 ]
             ]
-            [ img [ src "images/login-logo.png", width 100, height 100 ] []
+            [ img
+                [ src "images/login-logo.png", width 100, height 100
+                , style [("padding", "5px")]
+                ]
+                []
             , div
                 [ style [ ("align-self", "center"), ("justify-content", "center"), ("padding", "0 0 0 15px") ]]
                 [ div [ class "login-title h2"] [ i18nLookup I18n.LoginTitle |> text ]
