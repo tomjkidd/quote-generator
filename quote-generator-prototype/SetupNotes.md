@@ -98,6 +98,10 @@ Verify Server still running
         clear
         ps aux | grep nohup
 
+Emacs, if you want
+
+        sudo apt-get install emacs
+
 
 ### Reference
 [Use Putty for login to EC2](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html)
