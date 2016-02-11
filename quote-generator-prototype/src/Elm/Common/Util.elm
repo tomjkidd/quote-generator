@@ -3,6 +3,7 @@ module Common.Util
     , formatCurrency
     , removeAt
     , calculateBaseCost, calculateTotalCost, calculateQuoteTotalCost
+    , removeEmptyFeatures
     )
     where
 
@@ -65,3 +66,9 @@ splitFromRight str acc =
             newAcc = cur :: acc
         in
             splitFromRight remaining newAcc
+
+removeEmptyFeatures : Product -> Product
+removeEmptyFeatures p =
+    let fs = List.filter (\f -> f.quantity /= 0) p.features
+    in
+        { p | features = fs }

@@ -14,7 +14,8 @@ import Model exposing (Model, Page (..), Product, Feature)
 
 import I18n exposing (i18nLookup)
 import Common.Util exposing (show, formatCurrency
-    , calculateBaseCost, calculateTotalCost)
+    , calculateBaseCost, calculateTotalCost
+    , removeEmptyFeatures)
 import Common.Bootstrap.Util exposing (panelView, tableView)
 import ProductCatalog
 
@@ -70,6 +71,7 @@ productDetailView address product =
                     ]
                     [ text (formatCurrency totalCost) ]
                 ]
+        productForQuote = removeEmptyFeatures product
     in
         div [] <|
             [ ProductCatalog.productView False address product ] ++
@@ -97,7 +99,7 @@ productDetailView address product =
                 ]
             , div
                 [ class "submit-quote text-right"]
-                [ button [ onClick address (AddProductToQuote product) ] [ text (i18nLookup I18n.AddProductToQuote) ]
+                [ button [ onClick address (AddProductToQuote productForQuote) ] [ text (i18nLookup I18n.AddProductToQuote) ]
                 ]
             ]
 

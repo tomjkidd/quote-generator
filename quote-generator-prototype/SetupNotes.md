@@ -122,4 +122,4 @@ history | grep <keyword>
 
 [No Hang Up](http://stackoverflow.com/questions/12075642/how-to-start-process-via-ssh-so-it-keeps-running)
 
-[Non-interactie apt-get](https://snowulf.com/2008/12/04/truly-non-interactive-unattended-apt-get-install/)
+[Non-interactive apt-get](https://snowulf.com/2008/12/04/truly-non-interactive-unattended-apt-get-install/)
