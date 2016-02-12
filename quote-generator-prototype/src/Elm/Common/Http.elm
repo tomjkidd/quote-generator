@@ -2,6 +2,7 @@ module Common.Http
     ( requestProductCatalog
     , requestAntiForgeryToken
     , requestSubmitQuote
+    , requestSubmitQuoteWithAntiForgeryToken
     )
     where
 
@@ -86,3 +87,45 @@ requestSubmitQuote quote antiForgery =
     postEffect "quote" quote antiForgery Encoders.quote Decoders.submittedQuote
         (\response ->
             QuoteSubmitted (Uuid.toUuid response.uuid))
+
+getTask : String -> Json.Decoder a -> Task Http.Error a
+getTask url decoder =
+    let jsendRequest = Http.get (Decoders.jsend decoder) url
+        unpackedResponse = Task.andThen jsendRequest (\(JSend jsend) ->
+            Task.succeed jsend.data)
+    in
+        unpackedResponse
+
+postTask : String -> request -> AntiForgery -> (request -> Json.Encode.Value) -> Json.Decoder response -> Task Http.Error response
+postTask url requestData antiForgery encoder decoder =
+    let body =
+            Json.Encode.encode 0 (encoder requestData)
+                |> Http.string
+
+        request = post antiForgery (Decoders.jsend decoder) url body
+
+        unpackedResponse = Task.andThen request (\(JSend jsend) ->
+            Task.succeed jsend.data)
+    in
+        unpackedResponse
+
+requestSubmitQuoteWithAntiForgeryToken : Quote -> Effects Action
+requestSubmitQuoteWithAntiForgeryToken q =
+    let
+        afTask : Task Http.Error AntiForgery
+        afTask = getTask "antiforgerytoken" Decoders.antiForgery
+
+        sqTask : Task Http.Error SubmittedQuoteResponse
+        sqTask = Task.andThen afTask (\af ->
+            postTask "quote" q af Encoders.quote Decoders.submittedQuote)
+
+        actionTask : Task Http.Error Action
+        actionTask = Task.andThen sqTask (\sq->
+            Task.succeed (QuoteSubmitted (Uuid.toUuid sq.uuid)))
+
+        errorWrappedTask : Task Never Action
+        errorWrappedTask =
+            Task.onError actionTask httpErrorHandler
+    in
+        errorWrappedTask
+            |> Effects.task

@@ -17,7 +17,7 @@ import Html.Events exposing (..)
 import Signal exposing (Signal, Address)
 import StartApp
 --import Date exposing (Date)
-import Effects exposing (Effects, Never)
+import Effects exposing (Effects, Never, task)
 import Task
 
 import I18n exposing (i18nLookup)
@@ -89,7 +89,8 @@ update action model =
                 , Effects.batch
                     [ navEffect
                     , Common.Http.requestProductCatalog
-                    , Common.Http.requestAntiForgeryToken])
+                    --, Common.Http.requestAntiForgeryToken
+                    ])
 
         LogOut -> (initialModel, Effects.none)
 
@@ -173,11 +174,14 @@ update action model =
 
 
         HttpRequestSubmitQuote q ->
-            case model.antiForgery of
+            (model, Common.Http.requestSubmitQuoteWithAntiForgeryToken q)
+            -- TODO: Remove the antiForgery model code if the pattern should
+            --       be to just get the token before every post.
+            {-case model.antiForgery of
                 Nothing ->
                     (model, Effects.none)
                 Just af ->
-                    (model, Common.Http.requestSubmitQuote q af)
+                    (model, Common.Http.requestSubmitQuoteWithAntiForgeryToken q)-}
 
         QuoteSubmitted uuid ->
             let
