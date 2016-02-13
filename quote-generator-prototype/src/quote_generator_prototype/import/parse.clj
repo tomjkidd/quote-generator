@@ -95,7 +95,7 @@
   (->> (load-rows xlsx-filepath xlsx-translations-tab xlsx-translations-parse-map)
        (filter #(not (nil? (:value %))))))
 
-(defn- add-quantity-to-features 
+(defn- add-quantity-to-features
   "Use a list of features and the product features to add
 quantity to the feature map."
   [product-features features]
@@ -131,7 +131,7 @@ necessary extra fields the client uses to the results."
         base-feature-ids (map #(:feature-id %) pf-mappings)
         base-fs (->> features
                      (filter (base-feature? base-feature-ids))
-                     (map #(assoc % :base-feature true))) 
+                     (map #(assoc % :base-feature true)))
         base-fs-with-qty (add-quantity-to-features pf-mappings base-fs)
         additional-fs (->> features
                            (map #(merge % {:base-feature false :quantity 0})))
@@ -148,7 +148,7 @@ structure."
     (assoc product :features fs)))
 
 (defn combine-products-and-features
-  "Use the excel tab parsers to create products.edn, the 
+  "Use the excel tab parsers to create products.edn, the
 data structure used to source the list of products for the
 client."
   []
@@ -166,7 +166,7 @@ client."
   []
   (->> (combine-products-and-features)
        (pr-str)
-       (spit "./products.edn")))
+       (spit "./data/products.edn")))
 
 (defn parseLocalesToFile
   "A convenience function to save supported languages to disk"
@@ -175,11 +175,11 @@ client."
        (map #(:locale %))
        (distinct)
        (pr-str)
-       (spit "./locales.edn")))
+       (spit "./data/locales.edn")))
 
 (defn parseTranslationsToFile
   "A convenience function to save locale translations to disk"
   []
   (->> (parse-translations)
        (pr-str)
-       (spit "./translations.edn")))
+       (spit "./data/translations.edn")))

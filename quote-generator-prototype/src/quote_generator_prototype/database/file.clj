@@ -29,19 +29,19 @@ This function will create a backup."
   [products]
   (->> products
        (pr-str)
-       (backup-then-spit "products.edn")))
+       (backup-then-spit "data/products.edn")))
 
 (defn get-locales
   "Get the locales that are supported for the system."
   []
-  (->> "locales.edn"
+  (->> "data/locales.edn"
        (slurp)
        (read-string)))
 
 (defn get-translations
   "Get the translations for a locale"
   [locale-id]
-  (->> "translations.edn"
+  (->> "data/translations.edn"
        (slurp)
        (read-string)
        (filter #(= locale-id (:locale %)))))
@@ -49,7 +49,7 @@ This function will create a backup."
 (defn get-products
   "Get the products (and nested features) for the system."
   []
-  (->> "products.edn"
+  (->> "data/products.edn"
        (slurp)
        (read-string)))
 
@@ -66,5 +66,3 @@ This function will create a backup."
          (pr-str)
          (spit (str "./quotes/" uuid ".edn")))
     uuid))
-
-
