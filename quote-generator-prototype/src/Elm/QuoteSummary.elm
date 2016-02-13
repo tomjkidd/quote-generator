@@ -9,8 +9,8 @@ import Signal exposing (Address)
 
 import Model exposing (Model, Product, Page(..))
 import Action exposing (Action(..))
+import I18n exposing (I18nMessage(..))
 
-import I18n exposing (i18nLookup)
 import Common.Util exposing (show
     , formatCurrency
     , calculateTotalCost, calculateQuoteTotalCost)
@@ -19,9 +19,10 @@ import Common.Buttons exposing (goToProductsButton
 
 view : Address Action -> Model -> Html
 view address model =
-    let quoteHasProducts = model.quote.products /= []
+    let i18nLookup = model.i18nLookup
+        quoteHasProducts = model.quote.products /= []
         totalCost = calculateQuoteTotalCost model.quote
-        productViews = List.indexedMap (productView address model) model.quote.products
+        productViews = List.indexedMap (productView i18nLookup address model) model.quote.products
         totalCostView =
             div
                 [ class "input-group"
@@ -41,7 +42,7 @@ view address model =
     in
         div
             [ class "quote-summary-view"
-            , show (model.page == QuoteSummary)
+            , show (model.page == Model.QuoteSummary)
             ]
 
             [ div
@@ -60,23 +61,23 @@ view address model =
                     ]
                     [ totalCostView ]
                 ]
-            , goToProductsButton address model
+            , goToProductsButton i18nLookup address model
             , button [ onClick address (HttpRequestSubmitQuote model.quote), show (model.loggedIn && model.quote.products /= []) ] [ text (i18nLookup I18n.SubmitQuote) ]
             ]
 
-productViewLegacy : Address Action -> Model -> Int -> Product -> Html
-productViewLegacy address model index product =
+productViewLegacy : (I18nMessage -> String) -> Address Action -> Model -> Int -> Product -> Html
+productViewLegacy i18nLookup address model index product =
     let totalCost = calculateTotalCost product
     in
         div
             []
             [ div [] [ text product.title ]
             , div [] [ text (formatCurrency totalCost) ]
-            , removeProductFromQuoteButton address model index
+            , removeProductFromQuoteButton i18nLookup address model index
             ]
 
-productView : Address Action -> Model -> Int -> Product -> Html
-productView address model index product =
+productView : (I18nMessage -> String) -> Address Action -> Model -> Int -> Product -> Html
+productView i18nLookup address model index product =
     let totalCost = calculateTotalCost product
         linkToSample =
             case product.linkToSample of
@@ -102,7 +103,7 @@ productView address model index product =
 
         removeProductButton =
             div
-                [ onClick address (RemoveProductFromQuote index)
+                [ onClick address (Action.RemoveProductFromQuote index)
                 , show model.loggedIn
                 , class "input-group-addon"
                 ]

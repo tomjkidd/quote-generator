@@ -13,12 +13,13 @@ import Action exposing (Action(..))
 
 import Common.Util exposing (show)
 import Common.Buttons exposing (goToProductsButton, logoutButton)
-import I18n exposing (i18nLookup)
+import I18n exposing (I18nMessage(..))
 import Uuid
 
 view : Address Action -> Model -> Html
 view address model =
     let
+        i18nLookup = model.i18nLookup
         confNumberList =
             ul
                 [ class "list-group" ]
@@ -39,6 +40,6 @@ view address model =
             [ div [ class "h3" ] [ text (i18nLookup I18n.QuoteSubmittedTitle) ]
             , div [] [ text (i18nLookup I18n.QuoteSubmittedInfo) ]
             , confNumberList
-            , goToProductsButton address model
-            , logoutButton address model
+            , goToProductsButton i18nLookup address model
+            , logoutButton i18nLookup address model
             ]

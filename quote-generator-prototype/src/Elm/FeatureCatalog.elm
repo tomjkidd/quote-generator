@@ -12,7 +12,7 @@ import String
 import Action exposing (Action (..))
 import Model exposing (Model, Page (..), Product, Feature)
 
-import I18n exposing (i18nLookup)
+import I18n exposing (I18nMessage(..))
 import Common.Util exposing (show, formatCurrency
     , calculateBaseCost, calculateTotalCost
     , removeEmptyFeatures)
@@ -22,21 +22,22 @@ import ProductCatalog
 view : Address Action -> Model -> Html
 view address model =
     let product = model.selectedProduct
+        i18nLookup = model.i18nLookup
     in
         case product of
             Nothing -> div [ show (model.page == ProductFeatures) ] [ text "Not selected product..."]
             Just p ->
                 div
                     [ show (model.page == ProductFeatures) ]
-                    [ productDetailView address p ]
+                    [ productDetailView i18nLookup address p ]
 
-productDetailView : Address Action -> Product -> Html
-productDetailView address product =
+productDetailView : (I18nMessage -> String) -> Address Action -> Product -> Html
+productDetailView i18nLookup address product =
     let
         baseCost = calculateBaseCost product
         totalCost = calculateTotalCost product
-        baseFeatures = baseFeaturesView address product
-        additionalFeatures = additionalFeaturesView address product
+        baseFeatures = baseFeaturesView i18nLookup address product
+        additionalFeatures = additionalFeaturesView i18nLookup address product
 
         baseCostView =
             div
@@ -74,7 +75,7 @@ productDetailView address product =
         productForQuote = removeEmptyFeatures product
     in
         div [] <|
-            [ ProductCatalog.productView False address product ] ++
+            [ ProductCatalog.productView i18nLookup False address product ] ++
             [ baseFeatures
             --, div [ class "text-right"] [ text (formatCurrency baseCost)]
             , div
@@ -99,12 +100,12 @@ productDetailView address product =
                 ]
             , div
                 [ class "submit-quote text-right"]
-                [ button [ onClick address (AddProductToQuote productForQuote) ] [ text (i18nLookup I18n.AddProductToQuote) ]
+                [ button [ onClick address (Action.AddProductToQuote productForQuote) ] [ text (i18nLookup I18n.AddProductToQuote) ]
                 ]
             ]
 
-baseFeaturesHeaderView : Address Action -> Product -> Html
-baseFeaturesHeaderView address product =
+baseFeaturesHeaderView : (I18nMessage -> String) -> Address Action -> Product -> Html
+baseFeaturesHeaderView i18nLookup address product =
     let headerRow =
         tr
             []
@@ -135,11 +136,11 @@ baseFeaturesBodyView address product =
     in bodyRows
 
 
-baseFeaturesView : Address Action -> Product -> Html
-baseFeaturesView address product =
+baseFeaturesView : (I18nMessage -> String) -> Address Action -> Product -> Html
+baseFeaturesView i18nLookup address product =
     let heading = text (i18nLookup I18n.BaseFeaturesTitle)
 
-        headerRow = baseFeaturesHeaderView address product
+        headerRow = baseFeaturesHeaderView i18nLookup address product
         bodyRows = baseFeaturesBodyView address product
 
         body = div
@@ -148,8 +149,8 @@ baseFeaturesView address product =
     in
         panelView address heading body
 
-additionalFeaturesHeaderView : Address Action -> Product -> Html
-additionalFeaturesHeaderView address product =
+additionalFeaturesHeaderView : (I18nMessage -> String) -> Address Action -> Product -> Html
+additionalFeaturesHeaderView i18nLookup address product =
     let headerRow =
         tr
             []
@@ -201,10 +202,10 @@ additionalFeaturesBodyView address product =
         bodyRows = (List.map (\f -> additionalFeatureRowView address f) additionalFeatures)
     in bodyRows
 
-additionalFeaturesView : Address Action -> Product -> Html
-additionalFeaturesView address product =
+additionalFeaturesView : (I18nMessage -> String) -> Address Action -> Product -> Html
+additionalFeaturesView i18nLookup address product =
     let heading = text (i18nLookup I18n.AdditionalFeaturesTitle)
-        headerRow = additionalFeaturesHeaderView address product
+        headerRow = additionalFeaturesHeaderView i18nLookup address product
         bodyRows = additionalFeaturesBodyView address product
 
         body =

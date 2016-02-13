@@ -2,7 +2,8 @@ module Action
     (Action (..))
     where
 
-import Model exposing (Page, Feature, Product, Quote, AntiForgery, Translation)
+import Model exposing (Page, Feature, Product, Quote, AntiForgery)
+import I18n exposing (I18nMessage(..), Translation)
 import Uuid
 
 {-| -}
@@ -29,6 +30,7 @@ type Action
     | ClearConfirmation
     | Notify String -- Toastr with notification for user
     | Error String -- Toastr with error for user
+    | TranslateError I18nMessage
     | HttpRequestAnitForgeryToken -- Make http request for anti forgery info
     | UpdateAntiForgeryToken AntiForgery -- Capture the anti forgery token
     | LoadTranslations (List Translation) -- Load translations for a

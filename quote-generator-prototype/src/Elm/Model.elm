@@ -7,11 +7,11 @@ module Model
     , Quote
     , AntiForgery
     , SubmittedQuoteResponse
-    , Translation
     )
     where
 
 import Uuid
+import I18n exposing (I18nMessage(..), Translation)
 
 {-| -}
 type alias Model =
@@ -24,14 +24,15 @@ type alias Model =
     , selectedProduct : Maybe Product
     , confirmation : Maybe Uuid.Uuid
     , antiForgery : Maybe AntiForgery
+    , i18nLookup : (I18nMessage -> String)
     --, featureCatalog : List Feature
     --, TODO: Story for i18n (https://en.wikipedia.org/wiki/Internationalization_and_localization)
     }
 
 type alias HomeDetails =
-    { title : String
-    , summary : String
-    , description : String
+    { title : I18nMessage
+    , summary : I18nMessage
+    , description : I18nMessage
     , navigateTo : Page
     }
 
@@ -84,10 +85,4 @@ type alias AntiForgery =
 
 type alias SubmittedQuoteResponse =
     { uuid : String
-    }
-
-type alias Translation =
-    { key: String
-    , value: String
-    , locale: String
     }

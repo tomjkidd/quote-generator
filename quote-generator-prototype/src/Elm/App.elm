@@ -54,9 +54,9 @@ initialQuote =
 initialModel : Model
 initialModel =
     { homeDetails =
-        { title = i18nLookup I18n.HomeTitle
-        , summary = i18nLookup I18n.HomeSummary
-        , description = i18nLookup I18n.HomeDescription
+        { title = I18n.HomeTitle
+        , summary = I18n.HomeSummary
+        , description = I18n.HomeDescription
         , navigateTo = ProductCatalog
         }
     , loggedIn = False
@@ -67,6 +67,7 @@ initialModel =
     , quote = initialQuote
     , confirmation = Nothing
     , antiForgery = Nothing
+    , i18nLookup = i18nLookup
     }
 
 {-| -}
@@ -92,7 +93,7 @@ update action model =
                     --, Common.Http.requestAntiForgeryToken
                     ])
 
-        LogOut -> (initialModel, Effects.none)
+        LogOut -> ({ initialModel | i18nLookup = model.i18nLookup }, Effects.none)
 
         NavigateToPage page ->
             let currentPage = model.page
@@ -204,10 +205,10 @@ update action model =
                     let effect =
                         case uuid of
                             Nothing ->
-                                Error (i18nLookup I18n.QuoteSubmitFail)
+                                Error (model.i18nLookup I18n.QuoteSubmitFail)
 
                             Just _ ->
-                                Notify (i18nLookup I18n.QuoteSubmittedTitle)
+                                Notify (model.i18nLookup I18n.QuoteSubmittedTitle)
                     in
                         effect
                             |> Task.succeed
@@ -219,6 +220,9 @@ update action model =
 
         Error msg ->
             (model, requestShowError msg)
+
+        TranslateError key ->
+            (model, requestShowError (model.i18nLookup key))
 
         Notify msg ->
             (model, requestNotify msg)
@@ -234,13 +238,8 @@ update action model =
 
         LoadTranslations ts ->
             let translator = createTranslator ts
-                effect =
-                    Notify (toString (translator I18n.LoginTitle))
-                        |> Task.succeed
-                        |> Effects.task
-
             in
-                (model, effect)
+                ({ model | i18nLookup = translator}, Effects.none)
 
 {-| -}
 view : Address Action -> Model -> Html
@@ -261,16 +260,18 @@ view address model =
 
 headerView : Address Action -> Model -> Html
 headerView address model =
-    div [ show (model.loggedIn) ]
-        [ img [ src "images/header-logo.png", class "header-logo", height 50, width 300
-        , style [("padding", "5px"), ("cursor", "pointer")]
-        , onClick address (NavigateToPage Home)
-        ] []
-        , button [ onClick address (NavigateToPage ProductCatalog), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToProductCatalog) ]
-        , button [ onClick address (NavigateToPage QuoteSummary), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToQuoteSummary) ]
-        , logoutButton address model
-        , helpButton address model
-        ]
+    let i18nLookup = model.i18nLookup
+    in
+        div [ show (model.loggedIn) ]
+            [ img [ src "images/header-logo.png", class "header-logo", height 50, width 300
+            , style [("padding", "5px"), ("cursor", "pointer")]
+            , onClick address (NavigateToPage Home)
+            ] []
+            , button [ onClick address (NavigateToPage ProductCatalog), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToProductCatalog) ]
+            , button [ onClick address (NavigateToPage QuoteSummary), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToQuoteSummary) ]
+            , logoutButton i18nLookup address model
+            , helpButton i18nLookup address model
+            ]
 
 {-| -}
 app : StartApp.App Model
@@ -343,7 +344,7 @@ responsePortAction = Signal.map
                 let guid = response.data
                     action =
                         case guid of
-                            Nothing -> Error (i18nLookup I18n.QuoteSubmitFail)
+                            Nothing -> TranslateError I18n.QuoteSubmitFail
                             Just g -> QuoteSubmitted (Uuid.toUuid g)
                 in
                     action

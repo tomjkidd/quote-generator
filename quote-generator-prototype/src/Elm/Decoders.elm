@@ -12,7 +12,8 @@ module Decoders
 
 import Json.Decode as Json exposing ((:=))
 
-import Model exposing (Feature, Product, Quote, AntiForgery, SubmittedQuoteResponse, Translation)
+import Model exposing (Feature, Product, Quote, AntiForgery, SubmittedQuoteResponse)
+import I18n exposing (Translation)
 import Common.JSend exposing (JSend (..))
 -- http://www.troikatech.com/blog/2015/08/17/decoding-larger-json-objects-in-elm
 

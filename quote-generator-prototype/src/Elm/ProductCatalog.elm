@@ -12,13 +12,13 @@ import Html.Events exposing (..)
 import Action exposing (Action (..))
 import Model exposing (Model, Page (ProductCatalog), Product)
 import Common.Util exposing (show, formatCurrency, calculateBaseCost)
-import I18n exposing (i18nLookup)
+import I18n exposing (I18nMessage(..))
 
 import Theme exposing (themeLookup)
 
 view : Address Action -> Model -> Html
 view address model =
-    let products = List.map (productView True address) model.productCatalog
+    let products = List.map (productView model.i18nLookup True address) model.productCatalog
     in
         div
             [ show (model.page == ProductCatalog)
@@ -44,8 +44,8 @@ productViewLegacy address product =
             , div [] [text (toString baseCost)]
             ]
 
-productView : Bool -> Address Action -> Product -> Html
-productView showBaseCost address product =
+productView : (I18nMessage -> String) -> Bool -> Address Action -> Product -> Html
+productView i18nLookup showBaseCost address product =
     let baseCost = calculateBaseCost product
         linkToSample =
             case product.linkToSample of
