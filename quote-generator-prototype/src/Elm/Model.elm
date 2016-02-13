@@ -7,6 +7,7 @@ module Model
     , Quote
     , AntiForgery
     , SubmittedQuoteResponse
+    , Translation
     )
     where
 
@@ -83,4 +84,10 @@ type alias AntiForgery =
 
 type alias SubmittedQuoteResponse =
     { uuid : String
+    }
+
+type alias Translation =
+    { key: String
+    , value: String
+    , locale: String
     }

@@ -5,12 +5,14 @@ module Decoders
     , jsend
     , antiForgery
     , submittedQuote
+    , translation
+    , translations
     )
     where
 
 import Json.Decode as Json exposing ((:=))
 
-import Model exposing (Feature, Product, Quote, AntiForgery, SubmittedQuoteResponse)
+import Model exposing (Feature, Product, Quote, AntiForgery, SubmittedQuoteResponse, Translation)
 import Common.JSend exposing (JSend (..))
 -- http://www.troikatech.com/blog/2015/08/17/decoding-larger-json-objects-in-elm
 
@@ -59,3 +61,14 @@ submittedQuote : Json.Decoder SubmittedQuoteResponse
 submittedQuote =
     Json.object1 SubmittedQuoteResponse
         ("uuid" := Json.string)
+
+translation : Json.Decoder Translation
+translation =
+    Json.map Translation
+        ("key" := Json.string)
+        `apply` ("value" := Json.string)
+        `apply` ("locale" := Json.string)
+
+translations : Json.Decoder (List Translation)
+translations =
+    Json.list translation

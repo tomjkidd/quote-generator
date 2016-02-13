@@ -1,12 +1,15 @@
 module I18n
     ( SupportedLanguage (..)
     , englishI18nTranslations
-    , I18nMessage (..)
+    , I18nMessage(..)
     , i18nLookup
+    , createTranslator
     )
     where
 
 import Dict
+import Task
+import Model exposing (Translation)
 
 type SupportedLanguage
     = English
@@ -101,3 +104,18 @@ i18nLookup key =
         case entry of
             Nothing -> toString key
             Just e -> e
+
+createTranslator : List Translation -> (I18nMessage -> String)
+createTranslator ts =
+    let translationList = List.map (\t -> (t.key, t.value)) ts
+        i18nLookupDict = Dict.fromList translationList
+
+        translator : I18nMessage -> String
+        translator key =
+            let entry = Dict.get (toString key) i18nLookupDict
+            in
+                case entry of
+                    Nothing -> toString key
+                    Just e -> e
+    in
+        translator

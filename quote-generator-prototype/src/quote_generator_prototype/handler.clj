@@ -33,7 +33,9 @@
             (rr/response)))
 
   (GET "/translations/:id" [id]
-       (->> (db/get-translations id)))
+       (->> (db/get-translations id)
+            (jsend/success)
+            (rr/response)))
   
   ;; Endpoint to provide a way to save a submitted quote
   (POST "/quote" {body :body}

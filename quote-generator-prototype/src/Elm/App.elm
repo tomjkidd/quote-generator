@@ -20,7 +20,7 @@ import StartApp
 import Effects exposing (Effects, Never, task)
 import Task
 
-import I18n exposing (i18nLookup)
+import I18n exposing (i18nLookup, createTranslator)
 import Uuid
 import Common.Http
 import Common.Buttons exposing (goToProductsButton, logoutButton, helpButton)
@@ -232,6 +232,16 @@ update action model =
         UpdateAntiForgeryToken af ->
             ({ model | antiForgery = Just af }, requestConsoleLog (toString af))
 
+        LoadTranslations ts ->
+            let translator = createTranslator ts
+                effect =
+                    Notify (toString (translator I18n.LoginTitle))
+                        |> Task.succeed
+                        |> Effects.task
+
+            in
+                (model, effect)
+
 {-| -}
 view : Address Action -> Model -> Html
 view address model =
@@ -266,7 +276,7 @@ headerView address model =
 app : StartApp.App Model
 app =
   StartApp.start
-    { init = (initialModel, Effects.none)
+    { init = (initialModel, Common.Http.requestTranslations "en-US")
     , update = update
     , view = view
     , inputs = [ responsePortAction ]

@@ -2,7 +2,7 @@ module Action
     (Action (..))
     where
 
-import Model exposing (Page, Feature, Product, Quote, AntiForgery)
+import Model exposing (Page, Feature, Product, Quote, AntiForgery, Translation)
 import Uuid
 
 {-| -}
@@ -31,3 +31,4 @@ type Action
     | Error String -- Toastr with error for user
     | HttpRequestAnitForgeryToken -- Make http request for anti forgery info
     | UpdateAntiForgeryToken AntiForgery -- Capture the anti forgery token
+    | LoadTranslations (List Translation) -- Load translations for a

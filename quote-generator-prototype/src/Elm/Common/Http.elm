@@ -3,6 +3,7 @@ module Common.Http
     , requestAntiForgeryToken
     , requestSubmitQuote
     , requestSubmitQuoteWithAntiForgeryToken
+    , requestTranslations
     )
     where
 
@@ -129,3 +130,9 @@ requestSubmitQuoteWithAntiForgeryToken q =
     in
         errorWrappedTask
             |> Effects.task
+
+requestTranslations : String -> Effects Action
+requestTranslations locale =
+    let url = "translations/" ++ locale
+    in
+        getEffect url Decoders.translations (\ts -> LoadTranslations ts)
