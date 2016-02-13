@@ -25,7 +25,16 @@
        (->> (db/get-products)
             (jsend/success)
             (rr/response)))
+  
+  ;; Endpoint to provide a list of locales. 
+  (GET "/locales" []
+       (->> (db/get-locales)
+            (jsend/success)
+            (rr/response)))
 
+  (GET "/translations/:id" [id]
+       (->> (db/get-translations id)))
+  
   ;; Endpoint to provide a way to save a submitted quote
   (POST "/quote" {body :body}
         (->> {:uuid (db/save-quote body)}

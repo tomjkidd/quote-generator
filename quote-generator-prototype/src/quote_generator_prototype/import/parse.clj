@@ -86,13 +86,14 @@
   "Translations")
 
 (def xlsx-translations-parse-map
-  {:A :name
-   :B :translation})
+  {:A :key
+   :B :value
+   :C :locale})
 
 (defn parse-translations
   []
   (->> (load-rows xlsx-filepath xlsx-translations-tab xlsx-translations-parse-map)
-       (filter #(not (nil? (:translation %))))))
+       (filter #(not (nil? (:value %))))))
 
 (defn- add-quantity-to-features 
   "Use a list of features and the product features to add
@@ -166,3 +167,19 @@ client."
   (->> (combine-products-and-features)
        (pr-str)
        (spit "./products.edn")))
+
+(defn parseLocalesToFile
+  "A convenience function to save supported languages to disk"
+  []
+  (->> (parse-translations)
+       (map #(:locale %))
+       (distinct)
+       (pr-str)
+       (spit "./locales.edn")))
+
+(defn parseTranslationsToFile
+  "A convenience function to save locale translations to disk"
+  []
+  (->> (parse-translations)
+       (pr-str)
+       (spit "./translations.edn")))

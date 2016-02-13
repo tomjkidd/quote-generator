@@ -31,6 +31,21 @@ This function will create a backup."
        (pr-str)
        (backup-then-spit "products.edn")))
 
+(defn get-locales
+  "Get the locales that are supported for the system."
+  []
+  (->> "locales.edn"
+       (slurp)
+       (read-string)))
+
+(defn get-translations
+  "Get the translations for a locale"
+  [locale-id]
+  (->> "translations.edn"
+       (slurp)
+       (read-string)
+       (filter #(= locale-id (:locale %)))))
+
 (defn get-products
   "Get the products (and nested features) for the system."
   []
