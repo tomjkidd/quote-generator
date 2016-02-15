@@ -20,18 +20,24 @@ import Decoders
 import Encoders
 import Uuid
 
+getTask : String -> Json.Decoder a -> Task Http.Error a
+getTask url decoder =
+    let jsendRequest = Http.get (Decoders.jsend decoder) url
+        unpackedResponse = Task.andThen jsendRequest (\(JSend jsend) ->
+            Task.succeed jsend.data)
+    in
+        unpackedResponse
+
 getEffect : String -> Json.Decoder a -> (a -> Action) -> Effects Action
 getEffect url decoder dataToAction =
     let
-        -- NOTE: This type annotation is correct, but will cause failure to compile, as mentioned here: https://github.com/elm-lang/elm-compiler/blob/0.16.0/hints/type-annotations.md
-        --request : Task.Task Http.Error (JSend a)
-        request = Http.get (Decoders.jsend decoder) url
+        dataTask = getTask url decoder
 
-        response = Task.andThen request (\(JSend jsend) ->
-            Task.succeed (dataToAction jsend.data))
+        actionTask = Task.andThen dataTask (\v ->
+            Task.succeed (dataToAction v))
 
         errorWrappedTask =
-            Task.onError response httpErrorHandler
+            Task.onError actionTask httpErrorHandler
     in
         errorWrappedTask
             |> Effects.task
@@ -50,6 +56,20 @@ post antiForgery decoder url body =
         }
   in
       Http.fromJson decoder (Http.send Http.defaultSettings request)
+
+{-| Makes a task that will make a request for antiforgery token and then perform the desired post -}
+postTask : String -> request -> AntiForgery -> (request -> Json.Encode.Value) -> Json.Decoder response -> Task Http.Error response
+postTask url requestData antiForgery encoder decoder =
+    let body =
+            Json.Encode.encode 0 (encoder requestData)
+                |> Http.string
+
+        request = post antiForgery (Decoders.jsend decoder) url body
+
+        unpackedResponse = Task.andThen request (\(JSend jsend) ->
+            Task.succeed jsend.data)
+    in
+        unpackedResponse
 
 postEffect : String -> request -> AntiForgery -> (request -> Json.Encode.Value) -> Json.Decoder response -> (response -> Action) -> Effects Action
 postEffect url requestData antiForgery encoder decoder dataToAction =
@@ -83,32 +103,15 @@ requestAntiForgeryToken : Effects Action
 requestAntiForgeryToken =
     getEffect "antiforgerytoken" Decoders.antiForgery (\af -> UpdateAntiForgeryToken af)
 
+{-| DEPRECATED:
+ Because the antiForgery token changes on the server and the client doesn't
+ receive push notifications, this call sometimes resulted in failure because
+ the token had changed. Use requestSubmitQuoteWithAntiForgeryToken -}
 requestSubmitQuote : Quote -> AntiForgery -> Effects Action
 requestSubmitQuote quote antiForgery =
     postEffect "quote" quote antiForgery Encoders.quote Decoders.submittedQuote
         (\response ->
             QuoteSubmitted (Uuid.toUuid response.uuid))
-
-getTask : String -> Json.Decoder a -> Task Http.Error a
-getTask url decoder =
-    let jsendRequest = Http.get (Decoders.jsend decoder) url
-        unpackedResponse = Task.andThen jsendRequest (\(JSend jsend) ->
-            Task.succeed jsend.data)
-    in
-        unpackedResponse
-
-postTask : String -> request -> AntiForgery -> (request -> Json.Encode.Value) -> Json.Decoder response -> Task Http.Error response
-postTask url requestData antiForgery encoder decoder =
-    let body =
-            Json.Encode.encode 0 (encoder requestData)
-                |> Http.string
-
-        request = post antiForgery (Decoders.jsend decoder) url body
-
-        unpackedResponse = Task.andThen request (\(JSend jsend) ->
-            Task.succeed jsend.data)
-    in
-        unpackedResponse
 
 requestSubmitQuoteWithAntiForgeryToken : Quote -> Effects Action
 requestSubmitQuoteWithAntiForgeryToken q =
