@@ -13,7 +13,6 @@ Everything is being thrown together for now to experiment with getting the proto
 -}
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
 import Signal exposing (Signal, Address)
 import StartApp
 --import Date exposing (Date)
@@ -23,13 +22,13 @@ import Task
 import I18n exposing (i18nLookup, createTranslator)
 import Uuid
 import Common.Http
-import Common.Buttons exposing (goToProductsButton, logoutButton, helpButton)
 import Common.Util exposing (show, removeAt, formatCurrency,
     calculateBaseCost, calculateTotalCost, calculateQuoteTotalCost)
 import Common.Debug
 
 import Model exposing (..)
 import Action exposing (Action (..))
+import Nav
 import Login
 import Home
 import ProductCatalog
@@ -248,30 +247,22 @@ view address model =
         []
         [ Common.Debug.debugPanel address model showDebugPanel
         , div []
-            [ headerView address model
-            , Login.view address model
-            , Home.view address model
-            , ProductCatalog.view address model
-            , FeatureCatalog.view address model
-            , QuoteSummary.view address model
-            , SubmittedQuote.view address model
+            [ Nav.view address model
+            , div
+                [ style
+                    [ ("max-width", "960px")
+                    , ("margin", "auto")
+                    ]
+                ]
+                [ Login.view address model
+                , Home.view address model
+                , ProductCatalog.view address model
+                , FeatureCatalog.view address model
+                , QuoteSummary.view address model
+                , SubmittedQuote.view address model
+                ]
             ]
         ]
-
-headerView : Address Action -> Model -> Html
-headerView address model =
-    let i18nLookup = model.i18nLookup
-    in
-        div [ show (model.loggedIn) ]
-            [ img [ src "images/header-logo.png", class "header-logo", height 50, width 300
-            , style [("padding", "5px"), ("cursor", "pointer")]
-            , onClick address (NavigateToPage Home)
-            ] []
-            , button [ onClick address (NavigateToPage ProductCatalog), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToProductCatalog) ]
-            , button [ onClick address (NavigateToPage QuoteSummary), show model.loggedIn ] [ text (i18nLookup I18n.NavigateToQuoteSummary) ]
-            , logoutButton i18nLookup address model
-            , helpButton i18nLookup address model
-            ]
 
 {-| -}
 app : StartApp.App Model
