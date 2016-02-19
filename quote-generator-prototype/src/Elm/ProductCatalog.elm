@@ -83,7 +83,13 @@ productView i18nLookup showBaseCost address product =
 
     in
         div [ class "product"
-            , onClick address (SelectProduct product) ]
+            , onClick address (SelectProduct product)
+            , style
+                [ ("padding", "0 3px 0 3px")
+                , ("border-bottom", "1px solid #eeeeee")
+                , ("cursor", "pointer")
+                ]
+            ]
             [ div
                 [ class "row" ]
                 [ div
