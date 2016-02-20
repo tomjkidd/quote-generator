@@ -27,7 +27,7 @@ function onSignIn(googleUser) {
 
     if (isValid) {
         console.log(email + " is a valid email.")
-        app.ports.responsePort.send({ actionType: "LogIn", data: null });
+        app.ports.responsePort.send({ actionType: "LogIn", data: email });
 
     } else {
         signOut();
