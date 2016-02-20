@@ -11,7 +11,8 @@
                  [danlentz/clj-uuid "0.1.6"]
                  [camel-snake-kebab "0.3.2"]
                  [dk.ative/docjure "1.9.0"]
-                 [medley "0.7.1"]]
+                 [medley "0.7.1"]
+                 [hiccup "1.0.5"]]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler quote-generator-prototype.handler/app}
   :profiles

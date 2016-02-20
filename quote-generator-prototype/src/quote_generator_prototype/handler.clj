@@ -7,12 +7,35 @@
             [ring.util.response :as rr]
             [ring.middleware.anti-forgery :as af]
             [camel-snake-kebab.core :refer :all]
+            [quote-generator-prototype.import.parse :as xlsx]
             [quote-generator-prototype.database.file :as db]
-            [quote-generator-prototype.jsend :as jsend]))
+            [quote-generator-prototype.jsend :as jsend]
+            [hiccup.core :refer :all]
+            [hiccup.form :as form]
+            [hiccup.element :refer :all]))
 
 (defroutes app-routes
   "The defroutes macro returns a RING handler based on a list of routes, providing the appropriate handler for each request."
-  (GET "/" [] "Hello World")
+  (GET "/" [] (rr/redirect "/app.html"))
+
+  (GET "/import" []
+       (html [:form {:action "/import" :method "post" :enctype "multipart/form-data"}
+              [:div "Choose a template file to upload for the Quote Generator."]
+              [:input {:name "file" :type "file" :size "20"}]
+              [:input {:type "submit" :name "submit" :value "Submit"}]
+              (form/hidden-field "__anti-forgery-token"
+                                 af/*anti-forgery-token*)]))
+
+  (POST "/import" {params :params}
+        (let [store (:file  params)
+              file (:tempfile store)]
+          (xlsx/import (.getPath file))
+          (rr/redirect "/imported")))
+
+  (GET "/imported" []
+       (html [:div
+              [:div [:p "Import succeeded"]]
+              [:div (link-to "/" "Go to Quote Generator")]]))
 
   ;; Endpoint to request antiforgery token, built into RING
   (GET "/antiforgerytoken" []

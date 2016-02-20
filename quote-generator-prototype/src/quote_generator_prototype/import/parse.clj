@@ -2,6 +2,7 @@
   (:import
    (org.apache.poi.ss.usermodel Workbook Sheet Cell Row)
    (org.apache.poi.ss.util CellReference))
+  (:refer-clojure :exclude [import])
   (:require [dk.ative.docjure.spreadsheet :as docjure]
             [clojure.pprint :refer [pprint]]
             [medley.core :refer [map-vals]]))
@@ -15,7 +16,7 @@
     rows))
 
 (def xlsx-filepath
-  "The relative path to the xlsx template"
+  "The relative path to the default xlsx template"
   "./resources/public/import/quote-generator-template.xlsx")
 
 (def xlsx-product-tab
@@ -32,9 +33,10 @@
 
 (defn parse-products
   "Parse the products from the xlsx"
-  []
-  (->> (load-rows xlsx-filepath xlsx-product-tab xlsx-product-parse-map)
-       (filter #(not (nil? (:id %))))))
+  ([] (parse-products xlsx-filepath))
+  ([filepath]
+   (->> (load-rows filepath xlsx-product-tab xlsx-product-parse-map)
+        (filter #(not (nil? (:id %)))))))
 
 (def xlsx-feature-tab
   "The tab where Features are defined"
@@ -50,9 +52,10 @@
 
 (defn parse-features
   "Parse the features from the xlsx"
-  []
-  (->> (load-rows xlsx-filepath xlsx-feature-tab xlsx-feature-parse-map)
-       (filter #(not (nil? (:id %))))))
+  ([] (parse-features xlsx-filepath))
+  ([filepath]
+   (->> (load-rows filepath xlsx-feature-tab xlsx-feature-parse-map)
+        (filter #(not (nil? (:id %)))))))
 
 (def xlsx-product-feature-tab
   "The tab where Product/Feature mappings are defined"
@@ -65,8 +68,9 @@
    :C :feature-quantity})
 
 (defn parse-product-feature
-  []
-  (load-rows xlsx-filepath xlsx-product-feature-tab xlsx-product-feature-parse-map))
+  ([] (parse-product-feature xlsx-filepath))
+  ([filepath]
+   (load-rows filepath xlsx-product-feature-tab xlsx-product-feature-parse-map)))
 
 (def xlsx-base-cost-tab
   "The tab where the base cost is defined"
@@ -76,10 +80,11 @@
   {:A :base-cost})
 
 (defn parse-base-cost
-  []
-  (-> (load-rows xlsx-filepath xlsx-base-cost-tab xlsx-base-cost-parse-map)
-      (first)
-      (:base-cost)))
+  ([] (parse-base-cost xlsx-filepath))
+  ([filepath]
+   (-> (load-rows filepath xlsx-base-cost-tab xlsx-base-cost-parse-map)
+       (first)
+       (:base-cost))))
 
 (def xlsx-translations-tab
   "The tab where translations are defined"
@@ -91,9 +96,10 @@
    :C :locale})
 
 (defn parse-translations
-  []
-  (->> (load-rows xlsx-filepath xlsx-translations-tab xlsx-translations-parse-map)
-       (filter #(not (nil? (:value %))))))
+  ([] (parse-translations xlsx-filepath))
+  ([filepath]
+   (->> (load-rows filepath xlsx-translations-tab xlsx-translations-parse-map)
+        (filter #(not (nil? (:value %)))))))
 
 (defn- add-quantity-to-features
   "Use a list of features and the product features to add
@@ -151,35 +157,47 @@ structure."
   "Use the excel tab parsers to create products.edn, the
 data structure used to source the list of products for the
 client."
-  []
-  (let [products (parse-products)
-        features (parse-features)
-        product-features (parse-product-feature)
-        base-cost (parse-base-cost)
-        ]
-    (map (partial add-features-to-product base-cost features product-features)
-         products)
-    ))
+  ([] (combine-products-and-features xlsx-filepath))
+  ([filepath]
+   (let [products (parse-products filepath)
+         features (parse-features filepath)
+         product-features (parse-product-feature filepath)
+         base-cost (parse-base-cost filepath)
+         ]
+     (map (partial add-features-to-product base-cost features product-features)
+          products)
+     )))
 
 (defn parseProductsToFile
   "A convenience function to save results to disk."
-  []
-  (->> (combine-products-and-features)
-       (pr-str)
-       (spit "./data/products.edn")))
+  ([] (parseProductsToFile xlsx-filepath))
+  ([filepath]
+   (->> (combine-products-and-features filepath)
+        (pr-str)
+        (spit "./data/products.edn"))))
 
 (defn parseLocalesToFile
   "A convenience function to save supported languages to disk"
-  []
-  (->> (parse-translations)
-       (map #(:locale %))
-       (distinct)
-       (pr-str)
-       (spit "./data/locales.edn")))
+  ([] (parseLocalesToFile xlsx-filepath))
+  ([filepath]
+   (->> (parse-translations filepath)
+        (map #(:locale %))
+        (distinct)
+        (pr-str)
+        (spit "./data/locales.edn"))))
 
 (defn parseTranslationsToFile
   "A convenience function to save locale translations to disk"
-  []
-  (->> (parse-translations)
-       (pr-str)
-       (spit "./data/translations.edn")))
+  ([] (parseTranslationsToFile xlsx-filepath))
+  ([filepath]
+   (->> (parse-translations filepath)
+        (pr-str)
+        (spit "./data/translations.edn"))))
+
+(defn import
+  "Take an existing xlsx template file and load it as the new Product/Feature collections."
+  [filepath]
+  ;; TODO: Backup the existing files, do verification of incoming files
+  (parseProductsToFile filepath)
+  (parseLocalesToFile filepath)
+  (parseTranslationsToFile filepath))

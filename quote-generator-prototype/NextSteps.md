@@ -12,3 +12,7 @@ I attended the Boston Clojure meetup and through that started working on an open
 ## Create more stylish navbar
 
 ## Create components for Elm code
+
+## Create a Client field for the Quote
+
+## Create a note section for FeatureCatalog

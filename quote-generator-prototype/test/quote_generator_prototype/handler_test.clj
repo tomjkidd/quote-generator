@@ -11,4 +11,12 @@
 
   (testing "not-found route"
     (let [response (app (mock/request :get "/invalid"))]
-      (is (= (:status response) 404)))))
+      (is (= (:status response) 404))))
+
+  (testing "locales route"
+    (let [response (app (mock/request :get "/locales"))]
+      (is (= (:status response) 200))))
+
+  (testing "antiforgery route"
+    (let [response (app (mock/request :get "/antiforgerytoken"))]
+      (is (= (:status response) 200)))))
