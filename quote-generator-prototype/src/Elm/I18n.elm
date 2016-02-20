@@ -11,6 +11,7 @@ import Dict
 type I18nMessage
     = LoginTitle
     | LoginSubtitle
+    | LoginFailure
     | HomeTitle
     | HomeSummary
     | HomeDescription

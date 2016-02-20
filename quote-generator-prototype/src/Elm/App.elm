@@ -79,13 +79,16 @@ update action model =
 
         RequestLogOut -> (model, requestLogOut)
 
-        LogIn ->
+        LogIn preparer ->
             let navEffect =
                 (NavigateToPage Home)
                     |> Task.succeed
                     |> Effects.task
+
+                oldQuote = model.quote
+                updatedQuote = { oldQuote | preparer = Just preparer }
             in
-                ({ model | loggedIn = True}
+                ({ model | loggedIn = True, quote = updatedQuote }
                 , Effects.batch
                     [ navEffect
                     , Common.Http.requestProductCatalog
@@ -330,7 +333,10 @@ responsePortAction = Signal.map
     (\response ->
         case response.actionType of
             Just "LogOut" -> LogOut
-            Just "LogIn" -> LogIn
+            Just "LogIn" ->
+                case response.data of
+                    Nothing -> TranslateError I18n.LoginFailure
+                    Just preparer -> LogIn preparer
             Just "QuoteSubmitted" ->
                 let guid = response.data
                     action =

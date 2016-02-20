@@ -62,7 +62,7 @@ This function will create a backup."
   "Save a quote, identified by Uuid"
   [edn-quote]
   (let [uuid (uuid/v4)]
-    (->> (assoc edn-quote :datetime (t/now))
+    (->> (assoc edn-quote :id uuid :datetime (t/now))
          (pr-str)
          (spit (str "./quotes/" uuid ".edn")))
     uuid))

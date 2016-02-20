@@ -12,7 +12,7 @@ type Action
     | RequestConsoleLog String -- Request log to browser console
     -- | Auth String -- Perform auth check on user
     | RequestLogOut -- Request LogOut externally for Google auth
-    | LogIn -- On valid user
+    | LogIn String -- On valid user
     | LogOut -- Allow user to log out
     | HttpRequestProductCatalog -- Make http request for products in catalog
     | LoadProducts (List Product) -- Update productCatalog with available Products
