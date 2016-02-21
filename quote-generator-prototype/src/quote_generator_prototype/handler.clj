@@ -7,6 +7,7 @@
             [ring.util.response :as rr]
             [ring.middleware.anti-forgery :as af]
             [camel-snake-kebab.core :refer :all]
+            [quote-generator-prototype.login.google :as login]
             [quote-generator-prototype.import.parse :as xlsx]
             [quote-generator-prototype.database.file :as db]
             [quote-generator-prototype.jsend :as jsend]
@@ -36,6 +37,12 @@
        (html [:div
               [:div [:p "Import succeeded"]]
               [:div (link-to "/" "Go to Quote Generator")]]))
+
+  (GET "/google-signin" {params :params}
+       (let [token (:id-token params)]
+         (->> {:token-valid (login/login token)}
+              (jsend/success)
+              (rr/response))))
 
   ;; Endpoint to request antiforgery token, built into RING
   (GET "/antiforgerytoken" []

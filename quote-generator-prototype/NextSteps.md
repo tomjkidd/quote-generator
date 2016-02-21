@@ -16,3 +16,7 @@ I attended the Boston Clojure meetup and through that started working on an open
 ## Create a Client field for the Quote
 
 ## Create a note section for FeatureCatalog
+
+## Use hiccup to turn app.html into clojure code.
+
+## Integrate Google Signin completely.

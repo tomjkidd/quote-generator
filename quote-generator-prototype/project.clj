@@ -12,7 +12,8 @@
                  [camel-snake-kebab "0.3.2"]
                  [dk.ative/docjure "1.9.0"]
                  [medley "0.7.1"]
-                 [hiccup "1.0.5"]]
+                 [hiccup "1.0.5"]
+                 [clj-http "2.1.0"]]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler quote-generator-prototype.handler/app}
   :profiles
