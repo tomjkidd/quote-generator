@@ -1,10 +1,8 @@
 (ns quote-generator-prototype.login.google
   (:require [clojure.core :refer :all]
             [clj-http.client :as client]
-            [cheshire.core :as json]))
-
-(def tokeninfo-endpoint-url
-  "https://www.googleapis.com/oauth2/v3/tokeninfo")
+            [cheshire.core :as json]
+            [quote-generator-prototype.config :as config]))
 
 (defn- is-valid?
   [id-token]
@@ -25,14 +23,14 @@
         expire-epoch-str (:exp claims)
         name (:name claims)
         local (:locale claims)]
-    (or (= email "tomjkidd@gmail.com")
-        (.endsWith email "@crimsonhexagon.com"))))
+    (config/check-email email)))
 
 (defn is-valid-external?
   "Use the google `tokeninfo` endpoint to unpack the token."
   [id-token]
   (try
-    (let [response (client/get tokeninfo-endpoint-url {:query-params {"id_token" id-token}})
+    (let [endpoint-url (:google-tokeninfo-url (config/config))
+          response (client/get endpoint-url {:query-params {"id_token" id-token}})
           success (= 200 (:status response))
           claims (:body response)]
       (if (not success)
