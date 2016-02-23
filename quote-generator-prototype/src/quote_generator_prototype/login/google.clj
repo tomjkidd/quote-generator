@@ -23,7 +23,8 @@
         expire-epoch-str (:exp claims)
         name (:name claims)
         local (:locale claims)]
-    (config/check-email email)))
+    (and (config/check-email email)
+         (= client-id (:google-signin-client_id (config/config))))))
 
 (defn is-valid-external?
   "Use the google `tokeninfo` endpoint to unpack the token."

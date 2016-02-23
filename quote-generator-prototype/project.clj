@@ -18,4 +18,7 @@
   :ring {:handler quote-generator-prototype.handler/app}
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                        [ring/ring-mock "0.3.0"]]}})
+                        [ring/ring-mock "0.3.0"]
+                        [org.clojure/tools.namespace "0.2.11"]
+                        [midje "1.8.3"]]
+         :source-paths ["dev"]}})
