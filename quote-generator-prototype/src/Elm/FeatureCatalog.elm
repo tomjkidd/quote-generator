@@ -123,7 +123,7 @@ baseFeatureRowView address feature =
     tr
         []
         [ td [] [ text feature.title ]
-        , td [] [ text feature.description ]
+        , td [ class "white-space-pre-wrap"] [ text feature.description ]
         , td [] [ text (Maybe.withDefault "" feature.featureType) ]
         , td [ class "text-right" ] [ text (formatCurrency feature.cost) ]
         , td [ class "text-center" ] [ text (toString feature.quantity) ]
@@ -168,7 +168,7 @@ additionalFeatureRowView address feature =
     tr
         []
         [ td [] [ text feature.title ]
-        , td [] [ text feature.description ]
+        , td [ class "white-space-pre-wrap" ] [ text feature.description ]
         , td [] [ text (Maybe.withDefault "" feature.featureType) ]
         , td [ class "text-right" ] [ text (formatCurrency feature.cost) ]
         , td
