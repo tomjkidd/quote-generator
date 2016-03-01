@@ -32,5 +32,7 @@ tableView address headerRow bodyRows =
     table
         [ class "table table-condensed table-striped" ]
         [ thead [] [ headerRow ]
-        , tbody [] bodyRows
+        , tbody
+            [ style [ ("font-size", "small") ] ]
+            bodyRows
         ]

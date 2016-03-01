@@ -99,7 +99,9 @@ productView i18nLookup showBaseCost address product =
             , div
                 [ class "row" ]
                 [ div
-                    [ class "col-sm-12" ]
+                    [ class "col-sm-12"
+                    , style [ ("white-space", "pre-wrap") ]
+                    ]
                     [ text product.description ]
                 ]
             , div
