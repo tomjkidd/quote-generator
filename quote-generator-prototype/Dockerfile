@@ -19,7 +19,7 @@ RUN curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
 RUN apt-get install -y nodejs-legacy npm
 RUN apt-get install -y build-essential
 
-RUN sudo npm install -g elm
+RUN npm install -g elm
 
 RUN apt-get update
 
@@ -61,7 +61,7 @@ RUN lein
 
 EXPOSE 80
 
-CMD ["sudo",  "lein", "ring", "server-headless", "80"]
+CMD ["lein", "ring", "server-headless", "80"]
 
 # CMD sudo lein ring server-headless 80
 
